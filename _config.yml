@@ -17,9 +17,17 @@ defaults:
 title: Kwan
 name: Kwan
 description: 身为代码狗，技术菜就是罪恶，没错说的就是我
+url: https://github.com/yizhishi
 
 github: https://github.com/yizhishi
 rss: true
+
+
+show_excerpt: true
+
+
+email: mailto:283620911@qq.com
+
 
 plugins:
   - rouge

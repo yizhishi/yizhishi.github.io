@@ -14,11 +14,11 @@ defaults:
     values:
       image: true
 
-title: Minimalism
-name: minimalism
-description: Minimalism is a jekyll theme for minimalist
+title: Kwan
+name: Kwan
+description: 身为代码狗，技术菜就是罪恶，没错说的就是我
 
-github: https://github.com/showzeng/Minimalism
+github: https://github.com/yizhishi
 rss: true
 
 plugins:

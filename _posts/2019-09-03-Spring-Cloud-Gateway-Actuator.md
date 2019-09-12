@@ -29,7 +29,8 @@ management.endpoints.web.exposure.include = gateway # 暴露/gateway/*端点
 暴露后通过`ip:port/actuator/gateway/xxxx`进行访问
 
 ## 端点简介（2.1.2.RELEASE版本）
-| Endpoint 						| Request Method	| 返回																	|
+
+| Endpoint 						| Request Method	| 描述																	|
 |-------------------------------|-------------------|-----------------------------------------------------------------------|
 | /refresh 						| Post 				| 清除routes的cache														|
 | /globalfilters				| Get 				| 查询`GlobalFilter`的子类名称和顺序									|

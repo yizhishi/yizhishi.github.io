@@ -4,8 +4,7 @@ title: Spring Cloud Gateway 过滤器
 date: 2019-09-03 13:55:08 +0000
 category:
   - java
-tags:
-  - Spring Cloud Gateway
+tags: [Spring Cloud Gateway]
 comment: false
 reward: false
 excerpt: Spring Cloud Gateway 过滤器。

@@ -15,7 +15,6 @@ Gateway里Filter与Zuul1.x里Filter的区别
 ## Zuul1.x过滤器如何工作
 
 过滤器是Zuul1.x功能的核心部分，比如收到请求后在`PreDecorationFilter`里判断是通过ribbon路由`RibbonRoutingFilter`，还是直接跳转`SendForwardFilter`，还是简单路由`SimpleHostRoutingFilter`等操作都是通过过滤器实现，且Zuul1.x的过滤器简单易与扩展。
-
 比较重要的类有`RequestContext`、`ZuulServlet`、`ZuulRunner`、`FilterProcessor`。
 
 ### RequestContext
@@ -73,7 +72,7 @@ public class RequestContext extends ConcurrentHashMap<String, Object> {
 
 ### ZuulServlet
 
-Zuul1.x基于Servlet2.5构建的，通过`ZuulServlet#service`转发请求。
+Zuul1.x是基于Servlet2.5构建的，通过`ZuulServlet#service`转发请求。
 
 ``` java
 /**
@@ -85,7 +84,7 @@ public class ZuulServlet extends HttpServlet {
     @Override
     public void service(javax.servlet.ServletRequest servletRequest, javax.servlet.ServletResponse servletResponse) throws ServletException, IOException {
         try {
-            // 调用了ZuulRunner#init初始化RequestContext，并把ServletRequest放进RequestContext。
+            // 调用了ZuulRunner#init初始化RequestContext，并把ServletRequest、ServletResponse放进RequestContext。
             init((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);
 
             // Marks this request as having passed through the "Zuul engine", as opposed to servlets
@@ -121,7 +120,8 @@ public class ZuulServlet extends HttpServlet {
         } catch (Throwable e) {
             error(new ZuulException(e, 500, "UNHANDLED_EXCEPTION_" + e.getClass().getName()));
         } finally {
-            RequestContext.getCurrentContext().unset(); // 调用ThreadLocal#remove，清空RequestContext
+            // 调用ThreadLocal#remove，清空RequestContext
+            RequestContext.getCurrentContext().unset();
         }
     }
 ```
@@ -149,7 +149,7 @@ public class ZuulRunner {
         RequestContext ctx = RequestContext.getCurrentContext();
         if (bufferRequests) {
             ctx.setRequest(new HttpServletRequestWrapper(servletRequest));
-        } else { // ZuulServlet#init创建了一个bufferRequests为false的ZuulRunner。
+        } else { // ZuulServlet#init创建了一个bufferRequests为false的ZuulRunner，所以没有warp request。
             ctx.setRequest(servletRequest);
         }
         // 把request和response放进RequestContext
@@ -171,7 +171,7 @@ public class ZuulRunner {
 
 ### FilterProcessor
 
-前边几个类都比较简单，直觉上`FilterProcessor`会是重头戏。`FilterProcessor`的javadoc注释直接写`This the the core class to execute filters.`，在`FilterProcessor#processZuulFilter`调用了`ZuulFilter#runFilter`对Zuulfilters进行处理。
+`FilterProcessor`的javadoc注释`This the the core class to execute filters.`，在`FilterProcessor#processZuulFilter`调用了`ZuulFilter#runFilter`对ZuulFilters进行处理。
 
 ``` java
 /**
@@ -188,7 +188,8 @@ public class FilterProcessor {
      */
     public void postRoute() throws ZuulException {
         try {
-            runFilters("post"); // route和preRoute和这个方法一样，区别是调用runFilters时参数分别是route和pre
+            // route和preRoute和这个方法一样，区别是调用runFilters时参数分别是route和pre
+            runFilters("post");
         } catch (ZuulException e) {
             throw e;
         } catch (Throwable e) {
@@ -197,12 +198,14 @@ public class FilterProcessor {
     }
 
     /**
-     * runs all "error" filters. These are called only if an exception occurs. Exceptions from this are swallowed and logged so as not to bubble up.
+     * runs all "error" filters. These are called only if an exception occurs. 
+     * Exceptions from this are swallowed and logged so as not to bubble up.
      */
     public void error() {
         try {
             runFilters("error");
-        } catch (Throwable e) { // 异常被catch，在ZuulServlet中异常已经被放进RequestContext。
+        } catch (Throwable e) {
+            // 异常被捕获而不抛出，但是在ZuulServlet中异常已经被放进RequestContext。
             logger.error(e.getMessage(), e);
         }
     }
@@ -234,7 +237,8 @@ public class FilterProcessor {
     }
 
     /**
-     * Processes an individual ZuulFilter. This method adds Debug information. Any uncaught Thowables are caught by this method and converted to a ZuulException with a 500 status code.
+     * Processes an individual ZuulFilter. This method adds Debug information.
+     * Any uncaught Thowables are caught by this method and converted to a ZuulException with a 500 status code.
      *
      * @param filter
      * @return the return value for that filter
@@ -260,9 +264,13 @@ public class FilterProcessor {
                 copy = ctx.copy();
             }
 
-            ZuulFilterResult result = filter.runFilter(); // 调用ZuulFilter#runFilter，这个方法比较简单，根据过滤器里的shouldFilter判断是否执行过滤器的run()方法。如果执行过滤器的run()方法，返回执行成功（SUCCESS）或失败（FAILED），不执行返回跳过（SKIPPED）
-            ExecutionStatus s = result.getStatus(); // ZuulFilter#runFilter执行状态
-            execTime = System.currentTimeMillis() - ltime; // ZuulFilter#runFilter执行时间
+            // 调用ZuulFilter#runFilter。根据过滤器里的shouldFilter判断是否执行过滤器的run()方法。
+            // 如果执行过滤器的run()方法，返回执行成功（SUCCESS）或失败（FAILED），不执行则返回跳过（SKIPPED）
+            ZuulFilterResult result = filter.runFilter();
+            // ZuulFilter#runFilter执行状态
+            ExecutionStatus s = result.getStatus();
+            // ZuulFilter#runFilter执行时间
+            execTime = System.currentTimeMillis() - ltime;
 
             switch (s) {
                 case FAILED: // 过滤器的run()执行异常
@@ -277,11 +285,12 @@ public class FilterProcessor {
                         Debug.compareContextState(filterName, copy);
                     }
                     break;
-                default: // 过滤器的shouldFilter是false
+                default:
+                    // 过滤器的shouldFilter是false
                     break;
             }
 
-            if (t != null) throw t; // 如果过滤器的run()异常
+            if (t != null) throw t; // 如果过滤器的run()异常，抛异常
 
             // 如果过滤器的run()执行结束或跳过，调用BasicFilterUsageNotifier#notify。
             usageNotifier.notify(filter, s);
@@ -291,7 +300,7 @@ public class FilterProcessor {
             if (bDebug) {
                 Debug.addRoutingDebug("Running Filter failed " + filterName + " type:" + filter.filterType() + " order:" + filter.filterOrder() + " " + e.getMessage());
             }
-            // 调用BasicFilterUsageNotifier#notify
+            // 调用BasicFilterUsageNotifier#notify，创建一个name是zuul.filter-${filter的类名}的计时器，并count + 1
             usageNotifier.notify(filter, ExecutionStatus.FAILED);
             if (e instanceof ZuulException) {
                 throw (ZuulException) e;
@@ -302,26 +311,14 @@ public class FilterProcessor {
             }
         }
     }
-
-    /**
-     * Publishes a counter metric for each filter on each use.
-     */
-    public static class BasicFilterUsageNotifier implements FilterUsageNotifier {
-        private static final String METRIC_PREFIX = "zuul.filter-";
-
-        // 创建一个name是zuul.filter-${filter的类名}的计时器，并count + 1
-        @Override
-        public void notify(ZuulFilter filter, ExecutionStatus status) {
-            DynamicCounter.increment(METRIC_PREFIX + filter.getClass().getSimpleName(), "status", status.name(), "filtertype", filter.filterType());
-        }
-    }
-    // test
     ...
-
+    // BasicFilterUsageNotifier#notify和一些test
 }
 ```
 
 ### FilterLoader
+
+Zuul核心类，提供按类型获取ZuulFilters的方法`FilterLoader#getFiltersByType`
 
 ``` java
 /**
@@ -343,22 +340,28 @@ public class FilterLoader {
      */
     public List<ZuulFilter> getFiltersByType(String filterType) {
 
-        List<ZuulFilter> list = hashFiltersByType.get(filterType); // 第一次获取会是null
+        List<ZuulFilter> list = hashFiltersByType.get(filterType); // 第一次获取返回null
         if (list != null) return list;
 
         list = new ArrayList<ZuulFilter>();
 
-        // FilterRegistry在ZuulFilterInitializer的PostConstruct方法里，把ZuulFilters放进FilterRegistry的一个ConcurrentHashMap中
-        Collection<ZuulFilter> filters = filterRegistry.getAllFilters(); // 取到ZuulFilters
+        // 从FilterRegistry#getAllFilters取所有的ZuulFilters。
+        // 在ZuulFilterInitializer的PostConstruct方法里，会把ZuulFilters放进FilterRegistry
+        // 的一个ConcurrentHashMap里。
+        Collection<ZuulFilter> filters = filterRegistry.getAllFilters();
         for (Iterator<ZuulFilter> iterator = filters.iterator(); iterator.hasNext(); ) {
             ZuulFilter filter = iterator.next();
             if (filter.filterType().equals(filterType)) {
-                list.add(filter); // 所需类型的ZuulFilter
+                // 所需类型的ZuulFilter
+                list.add(filter);
             }
         }
-        Collections.sort(list); // sort by priority // 排序
+        // 排序
+        Collections.sort(list); // sort by priority
 
-        hashFiltersByType.putIfAbsent(filterType, list); // 放进hashFiltersByType（是一个ConcurrentHashMap），这样第二次调用这个方法可以直接返回所需的ZuulFilters
+        // 把对应类型的ZuulFilters放进hashFiltersByType（一个ConcurrentHashMap），
+        // 这样第二次调用这个方法可以直接返回所需的ZuulFilters
+        hashFiltersByType.putIfAbsent(filterType, list);
         return list;
     }
     ...

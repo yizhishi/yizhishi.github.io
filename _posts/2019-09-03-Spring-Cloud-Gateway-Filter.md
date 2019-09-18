@@ -198,7 +198,7 @@ public class FilterProcessor {
     }
 
     /**
-     * runs all "error" filters. These are called only if an exception occurs. 
+     * runs all "error" filters. These are called only if an exception occurs.
      * Exceptions from this are swallowed and logged so as not to bubble up.
      */
     public void error() {
@@ -296,7 +296,8 @@ public class FilterProcessor {
             usageNotifier.notify(filter, s);
             return o;
 
-        } catch (Throwable e) { // 异常往上抛出，在ZuulServlet#service方法里被捕获，然后通过error类型的过滤器处理异常。
+        } catch (Throwable e) {
+            // 异常往上抛出，在ZuulServlet#service方法里被捕获，然后通过error类型的过滤器处理异常。
             if (bDebug) {
                 Debug.addRoutingDebug("Running Filter failed " + filterName + " type:" + filter.filterType() + " order:" + filter.filterOrder() + " " + e.getMessage());
             }
@@ -367,3 +368,67 @@ public class FilterLoader {
     ...
 }
 ```
+
+### ZuulFilter
+
+ZuulFilters的父类，注释好清晰的，很好懂。提供了：
+
+- filterType抽象方法用于在子类中指定过滤器类型pre、route、post、error。
+- filterOrder抽象方法用于在子类中指过滤器优先级。
+- isFilterDisabled，过滤器是否被禁用，在配置文件中通过配置如“zuul.RibbonRoutingFilter.route.disable=true”禁用type为route的类名是RibbonRoutingFilter的过滤器。
+- runFilter，check过滤器是否被禁用和是否应该执行，然后调用子类的run()方法。
+- ...
+
+``` java
+...
+public abstract class ZuulFilter implements IZuulFilter, Comparable<ZuulFilter> {
+    ...
+    // 过滤器类型
+    abstract public String filterType();
+    ...
+    // 过滤器优先级
+    abstract public int filterOrder();
+    ...
+    // return zuul.[classname].[filtertype].disable
+    public String disablePropertyName() {
+        return "zuul." + this.getClass().getSimpleName() + "." + filterType() + ".disable";
+    }
+    // 过滤器是否被禁用。
+    // 在runFilter()方法里，通过判断isFilterDisabled与过滤器的shouldFilter方法，来确定是否执行过滤器的run方法
+    public boolean isFilterDisabled() {
+        filterDisabledRef.compareAndSet(null, DynamicPropertyFactory.getInstance().getBooleanProperty(disablePropertyName(), false));
+        return filterDisabledRef.get().get();
+    }
+
+    /**
+     * runFilter checks !isFilterDisabled() and shouldFilter(). The run() method is invoked if both are true.
+     *
+     * @return the return from ZuulFilterResult
+     */
+    public ZuulFilterResult runFilter() {
+        ZuulFilterResult zr = new ZuulFilterResult();
+        if (!isFilterDisabled()) { // 是否被禁用
+            if (shouldFilter()) { // 是否应该执行
+                Tracer t = TracerFactory.instance().startMicroTracer("ZUUL::" + this.getClass().getSimpleName());
+                try {
+                    Object res = run(); // 执行过滤器的run()
+                    zr = new ZuulFilterResult(res, ExecutionStatus.SUCCESS);
+                } catch (Throwable e) {
+                    t.setName("ZUUL::" + this.getClass().getSimpleName() + " failed");
+                    zr = new ZuulFilterResult(ExecutionStatus.FAILED);
+                    zr.setException(e);
+                } finally {
+                    t.stopAndLog();
+                }
+            } else {
+                zr = new ZuulFilterResult(ExecutionStatus.SKIPPED);
+            }
+        }
+        return zr;
+    }
+
+    ... // compare与test
+}
+```
+
+## Gateway过滤器如何工作

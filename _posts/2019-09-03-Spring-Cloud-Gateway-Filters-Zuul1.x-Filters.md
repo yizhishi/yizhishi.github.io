@@ -4,18 +4,19 @@ title: Spring Cloud Gateway 过滤器
 date: 2019-09-03 13:55:08 +0000
 category:
   - java
-tags: [Spring Cloud Gateway]
+tags: 
+  - Spring Cloud Gateway
 comment: false
 reward: false
-excerpt: Spring Cloud Gateway 过滤器。
+excerpt: Spring Cloud Gateway过滤器与Zuul1.x过滤器。
 ---
 
-Gateway里Filter与Zuul1.x里Filter的区别
+Gateway的Filter与Zuul1.x的Filter的区别
 
-## Zuul1.x过滤器如何工作
+## Zuul1.x的过滤器如何工作
 
 过滤器是Zuul1.x功能的核心部分，比如收到请求后在`PreDecorationFilter`里判断是通过ribbon路由`RibbonRoutingFilter`，还是直接跳转`SendForwardFilter`，还是简单路由`SimpleHostRoutingFilter`等操作都是通过过滤器实现，且Zuul1.x的过滤器简单易与扩展。
-比较重要的类有`RequestContext`、`ZuulServlet`、`ZuulRunner`、`FilterProcessor`。
+比较重要的类有`RequestContext`、`ZuulServlet`、`ZuulRunner`、`FilterProcessor`、`FilterLoader`。
 
 ### RequestContext
 
@@ -431,4 +432,24 @@ public abstract class ZuulFilter implements IZuulFilter, Comparable<ZuulFilter> 
 }
 ```
 
-## Gateway过滤器如何工作
+### 总结
+
+通过`RequestContext`在过滤器之间共享数据，`ZuulServlet#service`按类型调用过滤器，`ZuulFilter#runFilter`按优先级调用过滤器，`ZuulFilter`最后判断是否执行过滤器。
+
+## Gateway的过滤器如何工作
+
+施工中
+
+Gateway的过滤器分两类，分别是GlobalFilter和GatewayFilter，俩者有相同的方法定义。
+
+DisPatcherHandler ->
+
+### FilteringWebHandler
+
+``` java
+
+```
+
+### 总结
+
+通过``

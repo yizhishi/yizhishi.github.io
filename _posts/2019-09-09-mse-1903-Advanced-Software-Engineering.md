@@ -23,16 +23,20 @@ excerpt: 2019年03学期，高级软件工程。
 
 ### Object-Oriented Analysis And Design
 
-老师直接用的Omar ElGabry在 [Medium](https://medium.com/) 的文章。
-
-[Object-Oriented Analysis And Design — Introduction](https://medium.com/omarelgabrys-blog/object-oriented-analysis-and-design-introduction-part-1-a93b0ca69d36)
+教材与参考书：老师直接用的Omar ElGabry在 [Medium](https://medium.com/) 的文章，[Object-Oriented Analysis And Design — Introduction](https://medium.com/omarelgabrys-blog/object-oriented-analysis-and-design-introduction-part-1-a93b0ca69d36)
 
 计划翻译一部分他的博客。
 
 ### UML
 
-用书：《面向对象分析与设计（UML）》
-
+教材与参考书：《面向对象分析与设计（UML）》  
 作者：侯爱民、欧阳骥、胡传福
 
 计划梳理UML各种图。
+
+### 软件构件技术
+
+教材与参考书：《软件构建新技术》  
+作者：王洪伯
+
+听课阵亡

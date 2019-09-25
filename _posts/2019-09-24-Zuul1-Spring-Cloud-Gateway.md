@@ -35,18 +35,19 @@ Gateway基于Spring 5、Spring boot 2和Reactor构建，使用Netty作为运行�
 ### 产品对比
 
 下边以表格形式对Zuul1和Gateway作简单对比：
-|                  |Zuul1.x                            | Gateway                              |
-|----|----|----|
-| 实现              |基于Servlet2.x构建，使用阻塞的API。  | 基于Spring 5、Project Reactor、Spring Boot 2，使用非阻塞式的API。|
-| 长连接            |不支持                              | 支持                                 |
-| 不适用场景        | 后端服务响应慢或者高并发场景下，因为线程数量是固定（有限）的，线程容易被耗尽，导致新请求被拒绝。  |  中小流量的项目，使用Zuul1.x更合适。  |
-| 限流             | 无                                  | 内置限流过滤器                       |
-| 上手难度          | 同步编程，上手简单                    | 门槛较高，上手难度中等                |
-| Spring Cloud集成  | 是                                  | 是                                  |
-| Sentinel集成      | 是                                  | 是                                  |
-| 技术栈沉淀        | Zuul1开源近七年，经受考验，稳定成熟。  | ~~未见实际落地案例~~                    |
-| Github used by   | 1007 repositories                  | 102 repositories                     |
-| Github issues    | 88 Open / 2736 Closed              | 135 Open / 850 Closed                |
+
+|  |Zuul1.x | Gateway |
+|--|--|--|
+| 实现 |基于Servlet2.x构建，使用阻塞的API。 | 基于Spring 5、Project Reactor、Spring Boot 2，使用非阻塞式的API。|
+| 长连接 |不支持 | 支持 |
+| 不适用场景 | 后端服务响应慢或者高并发场景下，因为线程数量是固定（有限）的，线程容易被耗尽，导致新请求被拒绝。 | 中小流量的项目，使用Zuul1.x更合适。 |
+| 限流 | 无 | 内置限流过滤器 |
+| 上手难度 | 同步编程，上手简单 | 门槛较高，上手难度中等 |
+| Spring Cloud集成 | 是 | 是 |
+| Sentinel集成 | 是 | 是 |
+| 技术栈沉淀 | Zuul1开源近七年，经受考验，稳定成熟。 | 未见实际落地案例 |
+| Github used by | 1007 repositories | 102 repositories |
+| Github issues | 88 Open / 2736 Closed | 135 Open / 850 Closed |
 *注：Github used by和Github issues统计时间截止2019/8/26。*
 
 ### 2.1 性能对比
@@ -54,8 +55,9 @@ Gateway基于Spring 5、Spring boot 2和Reactor构建，使用Netty作为运行�
 #### 2.1.1 低并发场景
 
 模拟不同的tps在同样的请求时间（50s）,对两种网关产品进行压力测试，结果如下：
-|       | 测试样本Zuul1/Gateway，单位个 | 平均响应时间Zuul1/Gateway, 单位毫秒 |99%响应时间小于Zuul1/Gateway，单位毫秒 |错误比例Zuul1/Gateway |
-|----|----|----|----|----|
+
+| | 测试样本Zuul1/Gateway，单位个 | 平均响应时间Zuul1/Gateway, 单位毫秒 |99%响应时间小于Zuul1/Gateway，单位毫秒 |错误比例Zuul1/Gateway |
+|--|--|--|--|--|
 | 20tps | 20977 / 20580 | 11 / 14 | 16 / 40 | 0% / 0% |
 | 50tps | 42685 / 50586 | 18 / 12 | 66 / 22 | 0% / 0% |
 并发较低的场景下，两种网关的表现差不多
@@ -64,23 +66,24 @@ Gateway基于Spring 5、Spring boot 2和Reactor构建，使用Netty作为运行�
 
 配置同样的线程数（2000），同样的请求时间（5分钟），模拟高并发场景下，后端服务在不停的响应时间（休眠时间），对两种网关产品进行压力测试，结果如下：
 
-|            | 测试样本Zuul1/Gateway，单位个 | 平均响应时间Zuul1/Gateway, 单位毫秒 |99%响应时间小于Zuul1/Gateway，单位毫秒 |错误次数Zuul1/Gateway，单位个 | 错误比例Zuul1/Gateway |
-|----|----|----|----|----|----|
-| 休眠100ms  | 294134 / 1059321 | 2026 / 546   | 6136 / 1774  | 104 / 0  | 0.04% / 0%  |
-| 休眠300ms  | 101194 / 399909  | 5595 / 1489  | 15056 / 1690 | 1114 / 0 | 1.10% / 0%  |
-| 休眠600ms  | 51732 / 201262   | 11768 / 2975 | 27217 / 3203 | 2476 / 0 | 4.79% / 0%  |
-| 休眠1000ms | 31896 / 120956   | 19359 / 4914 | 46259 / 5115 | 3598 / 0 | 11.28% / 0% |
+| | 测试样本Zuul1/Gateway，单位个 | 平均响应时间Zuul1/Gateway, 单位毫秒 |99%响应时间小于Zuul1/Gateway，单位毫秒 |错误次数Zuul1/Gateway，单位个 | 错误比例Zuul1/Gateway |
+|--|--|--|--|--|
+| 休眠100ms | 294134 / 1059321 | 2026 / 546 | 6136 / 1774 | 104 / 0 | 0.04% / 0% |
+| 休眠300ms | 101194 / 399909 | 5595 / 1489 | 15056 / 1690 | 1114 / 0 | 1.10% / 0% |
+| 休眠600ms | 51732 / 201262 | 11768 / 2975 | 27217 / 3203 | 2476 / 0 | 4.79% / 0% |
+| 休眠1000ms | 31896 / 120956 | 19359 / 4914 | 46259 / 5115 | 3598 / 0 | 11.28% / 0% |
 *Zuul网关的tomcat最大线程数为400，hystrix超时时间为100000。*
 Gateway在高并发和后端服务响应慢的场景下比Zuul1的表现要好。
 
 #### 2.1.3 官方性能对比
 
 Spring Cloud Gateway的开发者提供了[benchmark项目](https://github.com/spencergibb/spring-cloud-gateway-bench)，用来对比二者性能，官方提供的性能对比结果如下：
-|  | Avg Req/sec/Thread | Avg Latency |
-|----|----|----|
+
+| | Avg Req/sec/Thread | Avg Latency |
+|--|--|--|
 | Spring Cloud Gateway | 3.24k | 6.61ms |
 | Zuul1 | 2.09k | 12.56ms |
-| none  | 11.77k | 2.09ms |
+| none | 11.77k | 2.09ms |
 *测试工具为wrk，测试时间30秒，线程数为10，连接数为200。*
 从官方的对比结果来看，Gateway的RPS是Zuul1的1.55倍，平均延迟是Zuul1的一半。
 

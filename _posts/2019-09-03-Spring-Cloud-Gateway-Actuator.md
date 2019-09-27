@@ -11,32 +11,35 @@ reward: false
 excerpt: Spring Cloud Gateway Actuator简介。
 ---
 
-- [actuator 端点](#actuator-%e7%ab%af%e7%82%b9)
-- [端点暴露](#%e7%ab%af%e7%82%b9%e6%9a%b4%e9%9c%b2)
-- [端点简介（2.1.2.RELEASE版本）](#%e7%ab%af%e7%82%b9%e7%ae%80%e4%bb%8b212release%e7%89%88%e6%9c%ac)
+- [Spring Cloud Gateway actuator 端点](#spring-cloud-gateway-actuator-%e7%ab%af%e7%82%b9)
+- [如何暴露端点](#%e5%a6%82%e4%bd%95%e6%9a%b4%e9%9c%b2%e7%ab%af%e7%82%b9)
+- [端点介绍（2.1.2.RELEASE版本）](#%e7%ab%af%e7%82%b9%e4%bb%8b%e7%bb%8d212release%e7%89%88%e6%9c%ac)
   - [refresh 端点](#refresh-%e7%ab%af%e7%82%b9)
   - [routes端点，get](#routes%e7%ab%af%e7%82%b9get)
   - [/routes/{id}/combinedfilters端点](#routesidcombinedfilters%e7%ab%af%e7%82%b9)
   - [/routes/{id}端点](#routesid%e7%ab%af%e7%82%b9)
 
-## actuator 端点
+## Spring Cloud Gateway actuator 端点
 
-官方介绍：
+Spring Cloud Gateway的actuator的官方介绍如下：
 > The `/gateway` actuator endpoint allows to monitor and interact with a Spring Cloud Gateway application. To be remotely accessible, the endpoint has to be enabled and exposed via HTTP or JMX in the application properties.
-使用过spring-boot-starter-actuator的同学应该对actuator不陌生，通过actuator端点可以对Spring Boot应用进行监控和交互（查看bean啥的很方便）。Gateway也在`org.springframework.cloud.gateway.actuate.GatewayControllerEndpoint`控制器中定义了几个端点。
 
-## 端点暴露
+使用过spring-boot-starter-actuator的同学应该对actuator不陌生，通过actuator端点可以对Spring Boot应用进行监控和交互（查看bean啥的很方便）。Spring Cloud Gateway也在`org.springframework.cloud.gateway.actuate.GatewayControllerEndpoint`控制器中定义了几个端点提供了filter的查询接口和route的一些操作接口。
 
-在`application.properties`新增属性，和`spring-boot-starter-actuator`的使用方法一样，需要通过配置暴露端点。
+## 如何暴露端点
+
+`/gateway`端点需要通过配置对外暴露，才能访问。
+
+在`application.properties`新增属性。
 
 ``` java
 management.endpoint.gateway.enabled = true          # 这个值默认就是true，所以不是必须的
 management.endpoints.web.exposure.include = gateway # 暴露/gateway/*端点
 ```
 
-暴露后默认通过`ip:port/actuator/gateway/xxxx`进行访问
+端点暴露后默认通过`ip:port/actuator/gateway/xxxx`进行访问
 
-## 端点简介（2.1.2.RELEASE版本）
+## 端点介绍（2.1.2.RELEASE版本）
 
 | Endpoint                     | Request Method | 描述  |
 |------------------------------|----------------|-------|
@@ -51,7 +54,7 @@ management.endpoints.web.exposure.include = gateway # 暴露/gateway/*端点
 
 ### refresh 端点
 
-org.springframework.cloud.gateway.actuate.GatewayControllerEndpoint
+`org.springframework.cloud.gateway.actuate.GatewayControllerEndpoint#refresh`
 
 ``` java
     ...
@@ -67,7 +70,7 @@ org.springframework.cloud.gateway.actuate.GatewayControllerEndpoint
     ...
 ```
 
-org.springframework.context.support.AbstractApplicationContext
+`org.springframework.context.support.AbstractApplicationContext#publishEvent`
 
 ``` java
     ...
@@ -120,7 +123,7 @@ org.springframework.context.support.AbstractApplicationContext
     }
 ```
 
-org.springframework.cloud.gateway.filter.WeightCalculatorWebFilter
+`org.springframework.cloud.gateway.filter.WeightCalculatorWebFilter#onApplicationEvent`
 
 ``` java
 

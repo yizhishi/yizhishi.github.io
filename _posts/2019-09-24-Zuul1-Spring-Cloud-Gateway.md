@@ -13,20 +13,55 @@ excerpt: Zuul1与Spring Cloud Gateway对比
 
 ## 一、API网关
 
-微服务架下，服务之间容易形成网状的调用关系，这种网状的调用关系不便管理和维护，这种场景下API网关应运而生。作为后端服务的入口，API网关在微服务架构中尤其重要，在对外部系统提供API入口的要求下，API网关应具备路由转发、负载均衡、限流熔断、权限控制、轨迹追踪和实时监控等功能。  
-目前，很多微服务都基于的Spring Cloud生态构建。Spring Cloud生态为我们提供了两种API网关产品，分别是Netflix开源的Zuul1和Spring自己开发的Spring Cloud Gateway（下边简称为Gateway）。Spring Cloud以Finchley版本为分界线，Finchley版本发布之前使用Zuul1作为API网关，之后更推荐使用Gateway。  
-*虽然Netflix已经在2018年5月开源了Zuul2，但是Spring Cloud已经推出了Gateway，并且在github上表示没有集成Zuul2的计划。所以从Spring Cloud发展的趋势来看，Gateway代替Zuul是必然的*
+&emsp;&emsp;微服务架下，服务之间容易形成网状的调用关系。这种网状的调用关系呢，不便于管理和维护，这种场景下API网关应运而生。
+
+&emsp;&emsp;目前，很多微服务都基于Spring Cloud生态构建。Spring Cloud生态为我们提供了两种API网关产品，分别是Netflix开源的Zuul1和Spring自己开发的Spring Cloud Gateway（下边简称为Gateway）。Spring Cloud以Finchley版本为分界线，Finchley版本发布之前使用Zuul1作为API网关，之后更推荐使用Gateway。
+
+&emsp;&emsp;*Netflix在2018年5月开源了Zuul2，但是Spring Cloud已经推出了Gateway，并且在github上表示没有集成Zuul2的计划。所以从Spring Cloud发展的趋势来看，Gateway代替Zuul是必然的。*
 
 ### 1.1 Zuul1简介
 
-Zuul1是Netflix在2013年开源的网关组件，大规模的应用在Netflix的生产环境中，经受了实践考验。它可以与Eureka、Ribbon、Hystrix等组件配合使用，实现路由转发、负载均衡、熔断等功能。Zuul1的核心是一系列过滤器，过滤器简单易于扩展，已经有一些三方库如`spring-cloud-zuul-ratelimit`等提供了过滤器支持。  
-Zuul1基于Servlet构建，使用的是阻塞的IO，引入了线程池来处理请求。每个请求都需要独立的线程来处理，从线程池中取出一个工作线程执行，下游微服务返回响应之前这个工作线程一直是阻塞的。
+&emsp;&emsp;Zuul1是Netflix在2013年开源的网关组件，大规模的应用在Netflix的生产环境中，经受了实践考验。它可以与Eureka、Ribbon、Hystrix等组件配合使用，实现路由转发、负载均衡、熔断等功能。Zuul1的核心是一系列过滤器，过滤器简单易于扩展，已经有一些三方库如`spring-cloud-zuul-ratelimit`等提供了过滤器支持。
+
+&emsp;&emsp;Zuul1基于Servlet2.5构建（zuul-core依赖的servlet-api版本是2.5），使用的是**阻塞**的IO，Servlet3.1才在`ServletOutputStream`和`ServletInputStream`加入了抽象的非阻塞方法。
+
+#### 1.1.1 Tomcat
+
+&emsp;&emsp;使用Zuul1作为微服务网关时，一般使用Spring Boot内置的Tomcat作为Web容器，Tomcat的版本与Spring Boot对应关系如下表：
+
+| spring-boot-starter-parent | tomcat |
+|----------------------------|--------|
+| 1.5.0.RELEASE              |8.5     |
+| 2.0.0.RELEASE              |8.5     |
+| 2.1.0.RELEASE              |9.0     |
+
+&emsp;&emsp;Tomcat在8及以上版本默认使用的是NIO模式，但是：
+
+- NioEndpoint#bind方法在初始时后，设置创建SocketChannel的模式为阻塞模式。
+- 创建SocketChannel后，将socketchannel放进NioEndpoint的poller队列中，通过Selector#select
+  进行IO操作：Read Request Body和Write Response时是阻塞的。
+
+``` java
+public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> {
+
+    // 在NioEndpoint#bind方法中被调用
+    protected void initServerSocket() throws Exception {
+        // AbstractSelectableChannel#configureBlocking方法的javadoc如下：
+        // If true then this channel will be placed inblocking mode; if false then it will be placednon-blocking mode
+        serverSock.configureBlocking(true); //mimic APR behavior
+    }
+}
+
+```
+
+&emsp;&emsp;线程模式使用的是线程池来处理请求，每个请求都需要独立的线程来处理，从线程池中取出一个工作线程执行，下游微服务返回响应之前这个工作线程一直是阻塞的。
 ![多线程系统架构](https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/zuul1-multithreaded-system-architecture.png)
 
 ### 1.2 Spring Cloud Gateway
 
-Spring Cloud Gateway 是Spring Cloud的一个全新的API网关项目，目的是为了替换掉Zuul1。Gateway可以与Spring Cloud Discovery Client（如Eureka）、Ribbon、Hystrix等组件配合使用，实现路由转发、负载均衡、熔断等功能，并且Gateway还内置了限流过滤器，实现了限流的功能。  
-Gateway基于Spring 5、Spring boot 2和Reactor构建，使用Netty作为运行时环境，比较完美的支持异步非阻塞编程。Netty使用非阻塞的IO，线程处理模型建立在主从Reactors多线程模型上。其中Boss Group轮询到新连接后与Client建立连接，生成NioSocketChannel，将channel绑定到Worker；Worker Group轮询并处理Read、Write事件。
+&emsp;&emsp;Spring Cloud Gateway 是Spring Cloud的一个全新的API网关项目，目的是为了替换掉Zuul1。Gateway可以与Spring Cloud Discovery Client（如Eureka）、Ribbon、Hystrix等组件配合使用，实现路由转发、负载均衡、熔断等功能，并且Gateway还内置了限流过滤器，实现了限流的功能。
+
+&emsp;&emsp;Gateway基于Spring 5、Spring boot 2和Reactor构建，使用Netty作为运行时环境，比较完美的支持异步非阻塞编程。Netty使用非阻塞的IO，线程处理模型建立在主从Reactors多线程模型上。其中Boss Group轮询到新连接后与Client建立连接，生成NioSocketChannel，将channel绑定到Worker；Worker Group轮询并处理Read、Write事件。
 ![主从reactors模型](https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/netty-simple-thread-model.png)
 
 ## 二、对比
@@ -54,18 +89,18 @@ Gateway基于Spring 5、Spring boot 2和Reactor构建，使用Netty作为运行�
 
 #### 2.1.1 低并发场景
 
-不同的tps，同样的请求时间（50s），对两种网关产品进行压力测试，结果如下：
+&emsp;&emsp;不同的tps，同样的请求时间（50s），对两种网关产品进行压力测试，结果如下：
 
 | tps   | 测试样本Zuul1/Gateway，单位个 | 平均响应时间Zuul1/Gateway, 单位毫秒 | 99%响应时间小于Zuul1/Gateway，单位毫秒 | 错误比例Zuul1/Gateway |
 |-------|---------------|---------|---------|---------|
 | 20tps | 20977 / 20580 | 11 / 14 | 16 / 40 | 0% / 0% |
 | 50tps | 42685 / 50586 | 18 / 12 | 66 / 22 | 0% / 0% |
 
-并发较低的场景下，两种网关的表现差不多
+&emsp;&emsp;并发较低的场景下，两种网关的表现差不多
 
 #### 2.1.2 高并发场景
 
-配置同样的线程数（2000），同样的请求时间（5分钟），后端服务在不同的响应时间（休眠时间），对两种网关产品进行压力测试，结果如下：
+&emsp;&emsp;配置同样的线程数（2000），同样的请求时间（5分钟），后端服务在不同的响应时间（休眠时间），对两种网关产品进行压力测试，结果如下：
 
 | 休眠时间   | 测试样本Zuul1/Gateway，单位个 | 平均响应时间Zuul1/Gateway, 单位毫秒 | 99%响应时间小于Zuul1/Gateway，单位毫秒 | 错误次数Zuul1/Gateway，单位个 | 错误比例Zuul1/Gateway |
 |------------|------------------|---------------|---------------|-----------|-------------|
@@ -73,13 +108,13 @@ Gateway基于Spring 5、Spring boot 2和Reactor构建，使用Netty作为运行�
 | 休眠300ms  | 101194 / 399909  | 5595 / 1489   | 15056 / 1690  | 1114 / 0  | 1.10% / 0%  |
 | 休眠600ms  | 51732 / 201262   | 11768 / 2975  | 27217 / 3203  | 2476 / 0  | 4.79% / 0%  |
 | 休眠1000ms | 31896 / 120956   | 19359 / 4914  | 46259 / 5115  | 3598 / 0  | 11.28% / 0% |
+&emsp;&emsp;*Zuul网关的tomcat最大线程数为400，hystrix超时时间为100000。*
 
-*Zuul网关的tomcat最大线程数为400，hystrix超时时间为100000。*  
-Gateway在高并发和后端服务响应慢的场景下比Zuul1的表现要好。
+&emsp;&emsp;Gateway在高并发和后端服务响应慢的场景下比Zuul1的表现要好。
 
 #### 2.1.3 官方性能对比
 
-Spring Cloud Gateway的开发者提供了[benchmark项目](https://github.com/spencergibb/spring-cloud-gateway-bench)用来对比Gateway和Zuul1的性能，官方提供的性能对比结果如下：
+&emsp;&emsp;Spring Cloud Gateway的开发者提供了[benchmark项目](https://github.com/spencergibb/spring-cloud-gateway-bench)用来对比Gateway和Zuul1的性能，官方提供的性能对比结果如下：
 
 | 网关                  | Avg Req/sec/Thread  | Avg Latency |
 |-----------------------|--------------------|--------------|
@@ -87,8 +122,8 @@ Spring Cloud Gateway的开发者提供了[benchmark项目](https://github.com/sp
 | Zuul1                 | 2.09k              | 12.56ms      |
 | none                  | 11.77k             | 2.09ms       |
 
-*测试工具为wrk，测试时间30秒，线程数为10，连接数为200。*  
-从官方的对比结果来看，Gateway的RPS是Zuul1的1.55倍，平均延迟是Zuul1的一半。
+&emsp;&emsp;*测试工具为wrk，测试时间30秒，线程数为10，连接数为200。*
+&emsp;&emsp;从官方的对比结果来看，Gateway的RPS是Zuul1的1.55倍，平均延迟是Zuul1的一半。
 
 ### 2.2 工作对比
 
@@ -96,7 +131,7 @@ Spring Cloud Gateway的开发者提供了[benchmark项目](https://github.com/sp
 
 ![zuul-works](https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/zuul-how-it-works.png)
 
-Zuul1过滤器通过`RequestContext`在过滤器之间共享数据，`ZuulServlet#service`按类型调用过滤器，`ZuulFilter#runFilter`按优先级调用过滤器，`ZuulFilter`最后判断是否执行过滤器。以下Zuul的代码是1.3.1版本，并省略了非关键部分代码。
+&emsp;&emsp;Zuul1过滤器通过`RequestContext`在过滤器之间共享数据，`ZuulServlet#service`按类型调用过滤器，`ZuulFilter#runFilter`按优先级调用过滤器，`ZuulFilter`最后判断是否执行过滤器。以下Zuul的代码是1.3.1版本，并省略了非关键部分代码。
 
 #### RequestContext
 
@@ -402,4 +437,7 @@ Zuul1的开源时间很早，Netflix、Riot、携程、拍拍贷等公司都已�
 Gateway在2019年离开Spring Cloud孵化器，应用于生产的案例少，稳定性有待考证。  
 从性能方面比较，两种产品在流量小的场景下性能表现差不多；并发高的场景下Gateway性能要好很多。从开发方面比较，Zuul1编程模型简单，易于扩展；Gateway编程模型稍难，代码阅读难度要比Zuul高不少，扩展也稍复杂一些。
 
-附：[一文理解Netty模型架构](https://juejin.im/post/5bea1d2e51882523d3163657#heading-12)
+附：
+
+[深度解读Tomcat中的NIO模型](https://www.jianshu.com/p/76ff17bc6dea)  
+[一文理解Netty模型架构](https://juejin.im/post/5bea1d2e51882523d3163657#heading-12)

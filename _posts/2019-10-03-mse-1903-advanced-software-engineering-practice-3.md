@@ -11,9 +11,7 @@ reward: false
 excerpt: 2019年03学期，高级软件工程作业3，使用TensorFlow识别数字验证码
 ---
 
-## 使用TensorFlow识别数字验证码要求
-
-提交程序和实现报告，报告用pdf格式。
+## 使用TensorFlow识别数字验证码的要求
 
 1. 安装Python和TensorFlow
 2. 复制Mnist（手写数字识别）代码
@@ -22,19 +20,21 @@ excerpt: 2019年03学期，高级软件工程作业3，使用TensorFlow识别数
 
 ## 一、环境准备，安装Python和TensorFlow
 
-### 1.1. 安装python
+### 1.1. 安装Python
 
 #### 1.1.1 下载Python
 
-从[python官方网站](https://www.python.org/downloads/)下载与电脑操作系统对应的最新版本的Python。下载Windows对应的exe文件后运行安装Python。
+从[python官方网站](https://www.python.org/downloads/)下载与电脑操作系统对应的最新版本的Python。
+
+我下载的是Windows对应的exe文件，运行exe文件安装Python，安装路径为`C:\tool\python3.7.3`。
 
 #### 1.1.2 为Python设置环境变量
 
-将`C:\tool\python3.7.3`和`C:\tool\python3.7.3\Scripts`添加进系统环境变量
+将`C:\tool\python3.7.3`和`C:\tool\python3.7.3\Scripts`添加进系统环境变量。
 
 #### 1.1.3 验证是否安装成功
 
-命令行输入`python -V`，安装成功会提示安装的python的版本，如：
+命令行输入`python -V`，如果安装成功会提示安装的python的版本，如：
 
 ``` bash
 Python 3.7.3
@@ -44,7 +44,7 @@ Python 3.7.3
 
 #### 1.2.1 安装TensorFlow
 
-命令行输入`pip install tensorflow`。
+使用pip安装，命令行输入`pip install tensorflow`。
 
 #### 1.2.2 验证是否安装成功
 
@@ -67,7 +67,7 @@ Required-by:
 
 #### 1.3.1 安装imageio和IPython
 
-命令行输入`pip install imageio`和`pip install ipython`
+使用pip安装，命令行输入`pip install imageio`和`pip install ipython`
 
 #### 1.3.2 验证是否安装成功
 
@@ -75,7 +75,7 @@ Required-by:
 
 ### 二、复制Mnist（手写数字识别）代码
 
-从[初学者的 TensorFlow 2.0 教程](https://www.tensorflow.org/tutorials/quickstart/beginner)复制并整理《初学者的 TensorFlow 2.0 教程》中的代码，如下：
+从[初学者的 TensorFlow 2.0 教程](https://www.tensorflow.org/tutorials/quickstart/beginner)，复制并整理手写数字识别的代码，代码如下：
 
 ``` python
 from __future__ import absolute_import, division, print_function, unicode_literals
@@ -105,9 +105,9 @@ model.evaluate(x_test,  y_test, verbose=2)
 model.save('myminst.model')
 ```
 
-## 三、运行Mnist程序，完成测试，包括系统自带的测试数据和自己手写数字的数据
+### 三、运行Mnist程序，完成测试，包括系统自带的测试数据和自己手写数字的数据
 
-### 3.1. 训练模型
+#### 3.1. 训练模型
 
 运行上述运行代码，执行结果为：
 
@@ -126,14 +126,16 @@ Epoch 5/5
 10000/1 - 1s - loss: 0.0389 - accuracy: 0.9771
 ```
 
-现在，这个照片分类器的准确度已经达到**98%**，将上边训练好的模型保存为`myminst.model`。
+现在，这个照片分类器的准确度已经达到**98%**，并且模型已经保存为`myminst.model`。
 
-### 3.2. 准备手写数字
+#### 3.2. 准备手写数字
 
 准备的数字的图片如下：
 ![0](https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/1903-a-s-e-p3/0.png)、![1](https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/1903-a-s-e-p3/1.png)、![4](https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/1903-a-s-e-p3/4.png)
 
-### 3.3. 验证手写数字
+#### 3.3. 验证手写数字
+
+验证手写数字代码如下：
 
 ``` python
 import tensorflow as tf
@@ -172,4 +174,4 @@ image: C:\tool\python_tutorial\tensorflow_tutorial\images\1.png, predict digit: 
 image: C:\tool\python_tutorial\tensorflow_tutorial\images\4.png, predict digit: 4
 ```
 
-成功识别3张图片里的数字。
+结论：成功识别3张图片里的数字，predict digit分别为0、1、4。

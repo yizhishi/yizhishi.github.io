@@ -42,8 +42,7 @@ excerpt: 2019年03学期，高级软件工程作业3，使用TensorFlow识别数
 
 #### 1.1.1 下载Python
 
-从[python官方网站](https://www.python.org/downloads/)下载与电脑操作系统对应的最新版本的Python。
-
+从[python官方网站](https://www.python.org/downloads/)下载与电脑操作系统对应的最新版本的Python。  
 我下载的是Windows对应的exe文件，运行exe文件安装Python，安装路径为`C:\tool\python3.7.3`。
 
 #### 1.1.2 为Python设置环境变量

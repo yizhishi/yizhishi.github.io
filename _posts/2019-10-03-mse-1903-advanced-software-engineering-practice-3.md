@@ -12,7 +12,7 @@ excerpt: 2019年03学期，高级软件工程作业3，使用TensorFlow识别数
 ---
 
 - [使用TensorFlow识别数字验证码的要求](#%e4%bd%bf%e7%94%a8tensorflow%e8%af%86%e5%88%ab%e6%95%b0%e5%ad%97%e9%aa%8c%e8%af%81%e7%a0%81%e7%9a%84%e8%a6%81%e6%b1%82)
-- [一、环境准备，安装Python和TensorFlow](#%e4%b8%80%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87%e5%ae%89%e8%a3%85python%e5%92%8ctensorflow)
+- [一、安装Python和TensorFlow](#%e4%b8%80%e5%ae%89%e8%a3%85python%e5%92%8ctensorflow)
   - [1.1. 安装Python](#11-%e5%ae%89%e8%a3%85python)
     - [1.1.1 下载Python](#111-%e4%b8%8b%e8%bd%bdpython)
     - [1.1.2 为Python设置环境变量](#112-%e4%b8%bapython%e8%ae%be%e7%bd%ae%e7%8e%af%e5%a2%83%e5%8f%98%e9%87%8f)
@@ -36,7 +36,7 @@ excerpt: 2019年03学期，高级软件工程作业3，使用TensorFlow识别数
 3. 运行Mnist程序，完成测试，包括系统自带的测试数据和自己手写数字的数据
 4. 提交程序和实现报告，报告用pdf格式。
 
-## 一、环境准备，安装Python和TensorFlow
+## 一、安装Python和TensorFlow
 
 ### 1.1. 安装Python
 

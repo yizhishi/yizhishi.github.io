@@ -10,8 +10,16 @@ comment: false
 reward: false
 excerpt: 2019年03学期，高级软件工程作业3，使用Haskell解决n皇后
 ---
+- [Haskell皇后布局](#haskell%e7%9a%87%e5%90%8e%e5%b8%83%e5%b1%80)
+- [一、安装Haskell](#%e4%b8%80%e5%ae%89%e8%a3%85haskell)
+  - [1.1. 下载Haskell](#11-%e4%b8%8b%e8%bd%bdhaskell)
+  - [1.2. 验证安装是否成功](#12-%e9%aa%8c%e8%af%81%e5%ae%89%e8%a3%85%e6%98%af%e5%90%a6%e6%88%90%e5%8a%9f)
+- [二、实现Haskell皇后布局程序](#%e4%ba%8c%e5%ae%9e%e7%8e%b0haskell%e7%9a%87%e5%90%8e%e5%b8%83%e5%b1%80%e7%a8%8b%e5%ba%8f)
+  - [2.1. 给出一种8皇后布局](#21-%e7%bb%99%e5%87%ba%e4%b8%80%e7%a7%8d8%e7%9a%87%e5%90%8e%e5%b8%83%e5%b1%80)
+  - [2.2. 枚举所有8皇后布局](#22-%e6%9e%9a%e4%b8%be%e6%89%80%e6%9c%898%e7%9a%87%e5%90%8e%e5%b8%83%e5%b1%80)
+  - [2.3. 枚举所有n皇后布局](#23-%e6%9e%9a%e4%b8%be%e6%89%80%e6%9c%89n%e7%9a%87%e5%90%8e%e5%b8%83%e5%b1%80)
 
-## 使用TensorFlow识别数字验证码要求
+## Haskell皇后布局
 
 1. 安装Haskell
 2. 实现Haskell皇后布局程序，三个步骤：

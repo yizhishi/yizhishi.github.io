@@ -58,7 +58,6 @@ safe _ [] _ = True
 safe x (x1:xs) n = x /= x1 && x /= x1+n && x /= x1-n && safe x xs (n+1)
 
 queensN n = foldM (\xs _ -> [x:xs | x <- [1..n], safe x xs 1]) [] [1..n]
-
 ```
 
 上述程序中：
@@ -342,3 +341,14 @@ n皇后布局，当n=11时，共有2680种解法，如下（部分）：
 ```
 
 n值在往上增加，递归时间会变得很长，所以并未一一列举。
+
+附：queens.hs
+
+``` haskell
+import Control.Monad ( foldM )
+
+safe _ [] _ = True
+safe x (x1:xs) n = x /= x1 && x /= x1+n && x /= x1-n && safe x xs (n+1)
+
+queensN n = foldM (\xs _ -> [x:xs | x <- [1..n], safe x xs 1]) [] [1..n]
+```

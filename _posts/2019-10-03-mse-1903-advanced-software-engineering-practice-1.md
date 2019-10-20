@@ -155,7 +155,7 @@ MSE网上选课系统共5个类，分别是Student学生类、Admin管理员类�
 
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);"  src="https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/1903-a-s-e-p1/class.png" />
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);"  src="https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/1903-a-s-e-p1/statechart.png" />
     <br />
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;

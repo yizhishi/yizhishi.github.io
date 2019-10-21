@@ -27,7 +27,15 @@ excerpt: 2019年03学期，高级软件工程作业1，假设一个软件系统�
   - 维护课程信息，如录入每学期可选课程的信息（课程名、主要教师、课程性质等等）。
 
 软件学院MSE网上选课系统的部分网站截图如下：
-TODO
+
+- 登录页面
+![登录页面](https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/1903-a-s-e-p1/login.jpg)
+- 查看成绩页面
+![登录页面](https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/1903-a-s-e-p1/score.jpg)
+- 查看课程页面
+![登录页面](https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/1903-a-s-e-p1/course.jpg)
+- 学生信息页面
+![登录页面](https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/1903-a-s-e-p1/student.jpg)
 
 下边给出MSE网上选课系统的几种UML图。
 
@@ -66,7 +74,7 @@ TODO
 
 用例名称：“登录”  
 用例简述：该用例允许学生和管理员登录系统，以便进行后操作。  
-参与者：学生、管理员 。 
+参与者：学生、管理员 。
 前置条件：开始这个用例前，需要打开系统主页。当参与者需要进入系统时，该用例开始执行。  
 后置条件：如果用例成功结束，则什么信息也不会被修改。  
 主事件流如下：
@@ -93,13 +101,13 @@ TODO
 
 - 1 学生操作选课系统，从**初始活动**进入活动**登录网上选课系统**，该活动可以根据学生不同的操作意向产生3个不同的分支活动。
 - 2 从活动**登录网上选课系统**出来：
-   - 2.1 进入到活动**查看个人信息**，该活动根据条件“是否修改个人信息”，产生2个分支活动。
-      - 2.1.1 如果不修改个人信息，进入到**结束活动**。
-      - 2.1.2 如果修改个人信息，进入到活动**修改个人信息**，修改后，进入到**结束活动**。
-   - 2.2 进入到活动**查看成绩**，查看后，进入到**结束活动**。
-   - 2.3 进入到活动**查看课程**，改活动根据条件“是否进行选退课”，产生2个分支。
-      - 2.3.1 如果不选/退课，进入到**结束活动**。
-      - 2.3.2 如果选/退课，进入到活动**选/退课**，该活动结束后，进入到**结束活动**。
+  - 2.1 进入到活动**查看个人信息**，该活动根据条件“是否修改个人信息”，产生2个分支活动。
+    - 2.1.1 如果不修改个人信息，进入到**结束活动**。
+    - 2.1.2 如果修改个人信息，进入到活动**修改个人信息**，修改后，进入到**结束活动**。
+  - 2.2 进入到活动**查看成绩**，查看后，进入到**结束活动**。
+  - 2.3 进入到活动**查看课程**，改活动根据条件“是否进行选退课”，产生2个分支。
+    - 2.3.1 如果不选/退课，进入到**结束活动**。
+    - 2.3.2 如果选/退课，进入到活动**选/退课**，该活动结束后，进入到**结束活动**。
 
 ## 三、MSE网上选课系统的部分顺序图
 
@@ -116,8 +124,8 @@ TODO
 </center>
 
 “管理员新增成绩的顺序图”操作过程如下：  
-`管理员`试图登录`login(name, pwd)`到`Web界面`，`Web界面`发送`管理员`输入的账户和密码到`数据库接口`进行校验`check(name, pwd)`，由`数据库接口`完成对账户和密码的校验。登录和校验都是同步消息，因此在`check(name, pwd)`返回前之前的活动是中断的。将以上操作记录进`系统日志` `addLog()`是异步消息，之前的活动不需要中断。  
-`管理员`登录后，在`Web界面`进行成绩管理`manageScore()`s，`Web界面`发送信息将新增的成绩`addScore(score)`到`数据库接口`。将以上操作记录进`系统日志` `addLog()`是异步消息，之前的活动不需要中断。
+`管理员`试图登录`login(name, pwd)`到`Web界面`，`Web界面`发送`管理员`输入的账户和密码到`数据库接口`进行校验`check(name, pwd)`，由`数据库接口`完成对账户和密码的校验。登录和校验都是同步消息，因此在`check(name, pwd)`返回前之前的活动会是中断的。将以上操作记录进`系统日志` `addLog()`是异步消息，之前的活动不需要中断。  
+`管理员`登录后，在`Web界面`进行成绩管理`manageScore()`，`Web界面`发送信息将新增的成绩`addScore(score)`到`数据库接口`。将以上操作记录进`系统日志` `addLog()`是异步消息，之前的活动不需要中断。
 
 ## 四、MSE网上选课系统的部分协作图
 
@@ -174,4 +182,33 @@ MSE网上选课系统共5个类，分别是Student学生类、Admin管理员类�
 
 ## 七、组件图
 
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);"  src="https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/1903-a-s-e-p1/component.png" />
+    <br />
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">图7.1 MSE网上选课系统 组件图</div>
+</center>
+
+图7.1是选课系统的组件图，其中`Default.aspx`是系统的入口，`Course`、`Student`、`Score`和`Login`是系统的四个子程序，分别是课程、学生、成绩和登录。  
+
+- `Course`课程子程序又有3个动态Web页面：`CourseSelectView.aspx`、`CourseSelect.aspx`和`CourseManage.aspx`，分别是课程展示页面、选/退课页面和课程管理页面。这3个动态Web页面都依赖`DB`。
+- `Student`学生子程序又有3个动态Web页面：`StudentChangePassword.aspx`、`StudentChangeInfo.aspx`和`StudentManage.aspx`，分别是修改密码页面、修改信息页面和学生管理页面。这3个动态Web页面都依赖`DB`。
+- `Score`成绩子程序又有2个动态Web页面：ScoreViewByStudent.aspx和ScoreManage.aspx，分别是成绩展示页面和成绩管理页面。这2个动态Web页面都依赖`DB`。
+- `Login`登录子程序又有2个动态Web页面：`UserLogin.aspx`和`UserLogout.aspx`，分别是登录页面和注销管理页面。这2个动态Web页面都依赖`DB`。
+
 ## 八、部署图
+
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);"  src="https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/1903-a-s-e-p1/deploy.png" />
+    <br />
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">图8.1 MSE网上选课系统 组件图</div>
+</center>
+
+MSE网上选课系统是B/S架构，用户通过浏览器（如chrome、IE等）使用http协议访问Web服务器。Web服务器与数据库服务器之间有数据交互，通过TCP/IP协议。其中Web服务器使用Tomcat作用web容器，版本是8.5；数据库使用的是Mysql，版本是5.6。

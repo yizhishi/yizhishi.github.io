@@ -13,7 +13,19 @@ excerpt: 2019年03学期，高级软件工程作业1，假设一个软件系统�
 
 ## 软件学院MSE网上选课系统
 
-&emsp;&emsp;软件学院现有的非全日制研究生的选课系统（[软件学院MSE网上选课系统](http://www.fdmse.fudan.edu.cn/fdmse-1516/Default.aspx)）主要处理非全日制研究生的选课事务。系统的需求描述如下：
+软件学院现有的非全日制研究生的选课系统（[软件学院MSE网上选课系统](http://www.fdmse.fudan.edu.cn/fdmse-1516/Default.aspx)）主要处理非全日制研究生的选课事务。  
+软件学院MSE网上选课系统的部分网站截图如下：
+
+1. 登录页面
+![登录页面](https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/1903-a-s-e-p1/login.jpg)
+2. 查看成绩页面
+![登录页面](https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/1903-a-s-e-p1/score.jpg)
+3. 查看课程页面
+![登录页面](https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/1903-a-s-e-p1/course.jpg)
+4. 学生信息页面
+![登录页面](https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/1903-a-s-e-p1/student.jpg)
+
+通过我的系统的使用和分析，我设想的MSE网上选课系统的需求描述如下：
 
 - 查看每个小学期可选课程信息，无需登录。
 - 学生（即我们）在登录后，可以进行以下操作：
@@ -24,18 +36,7 @@ excerpt: 2019年03学期，高级软件工程作业1，假设一个软件系统�
 - 管理员（如廖老师）在登录后，可以进行以下操作：
   - 维护学生信息，如新增学生信息、修改学生信息、查看学生已选课程等。
   - 维护学生成绩，如新增学生成绩、修改学生成绩等。
-  - 维护课程信息，如录入每学期可选课程的信息（课程名、主要教师、课程性质等等）。
-
-软件学院MSE网上选课系统的部分网站截图如下：
-
-- 登录页面
-![登录页面](https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/1903-a-s-e-p1/login.jpg)
-- 查看成绩页面
-![登录页面](https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/1903-a-s-e-p1/score.jpg)
-- 查看课程页面
-![登录页面](https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/1903-a-s-e-p1/course.jpg)
-- 学生信息页面
-![登录页面](https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/1903-a-s-e-p1/student.jpg)
+  - 维护课程信息，如录入每学期可选课程的信息（课程名、主要教师、课程性质等）。
 
 下边给出MSE网上选课系统的几种UML图。
 
@@ -211,4 +212,4 @@ MSE网上选课系统共5个类，分别是Student学生类、Admin管理员类�
     padding: 2px;">图8.1 MSE网上选课系统 组件图</div>
 </center>
 
-MSE网上选课系统是B/S架构，用户通过浏览器（如chrome、IE等）使用http协议访问Web服务器。Web服务器与数据库服务器之间有数据交互，通过TCP/IP协议。其中Web服务器使用Tomcat作用web容器，版本是8.5；数据库使用的是Mysql，版本是5.6。
+MSE网上选课系统使用的是B/S架构，用户通过浏览器（如chrome、IE等）使用http协议访问Web服务器。Web服务器与数据库服务器之间有数据交互，通过TCP/IP协议。其中Web服务器使用Tomcat作用web容器，版本是8.5；数据库使用的是Mysql，版本是5.6。

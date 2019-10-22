@@ -20,3 +20,5 @@ excerpt: 工具如何使用-LaTeX
 附：
 
 - [常用数学符号的 LaTeX 表示方法](http://mohu.org/info/symbols/symbols.htm)
+- [LaTeX快速入门](https://blog.csdn.net/qingdujun/article/details/80805613)
+- [LaTeX入门文档](https://liam.page/2014/09/08/latex-introduction/)

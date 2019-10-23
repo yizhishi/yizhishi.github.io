@@ -8,7 +8,7 @@ tags:
   - mse
 comment: false
 reward: false
-excerpt: 2019年03学期，高级软件工程作业3，使用TensorFlow识别数字验证码
+excerpt: 2019年03学期，高级软件工程作业3，使用TensorFlow识别手写数字。
 ---
 
 - [使用TensorFlow识别数字验证码的要求](#%e4%bd%bf%e7%94%a8tensorflow%e8%af%86%e5%88%ab%e6%95%b0%e5%ad%97%e9%aa%8c%e8%af%81%e7%a0%81%e7%9a%84%e8%a6%81%e6%b1%82)

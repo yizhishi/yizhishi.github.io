@@ -8,8 +8,9 @@ tags:
   - mse
 comment: false
 reward: false
-excerpt: 2019年03学期，高级软件工程作业3，使用Haskell解决n皇后
+excerpt: 2019年03学期，高级软件工程作业2，使用Haskell解决n皇后。
 ---
+
 - [Haskell皇后布局](#haskell%e7%9a%87%e5%90%8e%e5%b8%83%e5%b1%80)
 - [一、安装Haskell](#%e4%b8%80%e5%ae%89%e8%a3%85haskell)
   - [1.1. 下载Haskell](#11-%e4%b8%8b%e8%bd%bdhaskell)

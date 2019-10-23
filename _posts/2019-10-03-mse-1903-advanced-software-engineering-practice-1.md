@@ -10,6 +10,7 @@ comment: false
 reward: false
 excerpt: 2019年03学期，高级软件工程作业1，假设一个软件系统，给出尽量完整的UML。
 ---
+
 - [软件学院MSE网上选课系统介绍](#%e8%bd%af%e4%bb%b6%e5%ad%a6%e9%99%a2mse%e7%bd%91%e4%b8%8a%e9%80%89%e8%af%be%e7%b3%bb%e7%bb%9f%e4%bb%8b%e7%bb%8d)
 - [一、MSE网上选课系统的用例图](#%e4%b8%80mse%e7%bd%91%e4%b8%8a%e9%80%89%e8%af%be%e7%b3%bb%e7%bb%9f%e7%9a%84%e7%94%a8%e4%be%8b%e5%9b%be)
 - [二、MSE网上选课系统的部分活动图](#%e4%ba%8cmse%e7%bd%91%e4%b8%8a%e9%80%89%e8%af%be%e7%b3%bb%e7%bb%9f%e7%9a%84%e9%83%a8%e5%88%86%e6%b4%bb%e5%8a%a8%e5%9b%be)

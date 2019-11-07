@@ -29,7 +29,7 @@ excerpt: 常见限流算法，sentinel与hystrix分析。
 
 如上图，水进入漏桶里，然后按固定速率流出。因为水流出的速率是固定的，所以当请求过多，装满漏桶后，会出现溢出。
 
-这个算法的核心是：缓存请求、匀速处理、多余的请求丢弃。
+漏桶算法是：缓存请求、匀速处理、多余的请求丢弃。
 
 ### 1.3 令牌桶
 
@@ -37,7 +37,7 @@ excerpt: 常见限流算法，sentinel与hystrix分析。
 
 令牌桶算法按速率往桶里放token，如果桶里token已满，就不再增加；放token操作和取token操作互不影响。
 
-请求到来时尝试从桶中取token，如果取到token，请求放行；如果没有取到token，请求在队列中被缓存。
+请求到来时尝试从桶中取token，如果取到token，请求放行；如果没有取到token，请求被拒绝或者在队列中被缓存。
 
 <!--令牌桶有3个变量：
 
@@ -58,6 +58,8 @@ excerpt: 常见限流算法，sentinel与hystrix分析。
 
 ## 二、Sentinel
 
+Sentinel提供了流量控制和熔断降级等功能，这些由一系列功能插槽实现。
+
 ### 2.1 Sentinel的插槽时序
 
 ![sentinel](https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/rate-limit/sentinel.png)
@@ -70,11 +72,11 @@ sentinel的插槽工作时序如上图（以sentinel与zuul集成为例），通
 - 4 `FlowSlot`根据配置的流控规则，对请求进行流控处理。
 - 5 `DegradeSlot`根据配置的流控规则，对请求进行降级处理。
 - 6 `StatisticSlot#entry`，`StatisticSlot`是Sentinel的核心功能插槽之一，用于统计实时的调用数据。
-  - 6.1. 新的请求到来，对`DefaultNode`的`thread count`和`pass count`进行add操作。
-  - 6.2. 插槽链上，位置在`StatisticSlot`之后的插槽的`entry`方法出现异常（如流控、降级校验不通过会扔出`BlockException`），如果异常类型是`BlockException`对`DefaultNode`的`block count`进行add操作；如果不是，对`exception count`进行add操作。
+  - 6.1. 新的请求到来，对node的`thread count`和`pass count`进行add操作。
+  - 6.2. 插槽链上，位置在`StatisticSlot`之后的插槽的`entry`方法出现异常（如流控、降级校验不通过会扔出`BlockException`），如果异常类型是`BlockException`对node的`block count`进行add操作；如果不是，对`exception count`进行add操作。
 - 7 `StatisticSlot#exit`
   - 7.1 计算rt，`rt = 当前时间 - 请求进入插槽的时间`，单位是毫秒，此处设置rt不大于4900（可以通过jvm启动参数：`-Dcsp.sentinel.statistic.max.rt=xxx`来修改）。
-  - 7.2 对`DefaultNode`的`response time`和`success count`进行了add操作，对`thread count`进行了decrease操作。
+  - 7.2 对node的`response time`和`success count`进行了add操作，对`thread count`进行了decrease操作。
 
 ### 2.2 Sentinel的流控
 
@@ -119,7 +121,7 @@ Hystrix：
 与zuul网关配置使用时，默认的隔离策略是信号量，信号量允许的值时100
 -->
 
-Hystrix为我们提供了信号量隔离、线程池隔离、熔断和降级，来构建稳定、可靠的分布式系统。
+Hystrix提供了信号量隔离、线程池隔离、熔断和降级，来构建稳定、可靠的分布式系统。
 
 ### 3.1 信号量隔离
 
@@ -146,7 +148,7 @@ Hystrix为我们提供了信号量隔离、线程池隔离、熔断和降级，�
   - 如果熔断器配置是强制关闭（配置项`circuitBreaker.forceClosed`为true），运行放行。调用`HystrixCircuitBreakerImpl#isOpen`执行断路器的计算逻辑，用来模拟断路器打开/关闭的行为。
   - 其他情况下，通过`HystrixCircuitBreaker#isOpen`和`HystrixCircuitBreakerImpl#allowSingleTest`来判断是否允许请求。
 - `HystrixCircuitBreakerImpl#isOpen`，判断熔断器开关是否打开。
-  - 如果断路器打开标识`circuitOpen`是true，返回`circuitOpen`。
+  - 如果断路器的打开标识`circuitOpen`是true，返回`circuitOpen`。
   - 如果总请求数或错误比率在设置的阈值比例内，返回false，断路器处于未打开状态。
   - 如果上一步的条件都不满足，将断路器打开。
 - `HystrixCircuitBreakerImpl#allowSingleTest`判断是否允许单个请求通行，检查依赖服务是否恢复。
@@ -156,16 +158,16 @@ Hystrix为我们提供了信号量隔离、线程池隔离、熔断和降级，�
 总结，请求到来时：
 
 - 如果断路器不允许通过，短路；
-- 如果断路器允许通过，但是信号量tryAcquire失败，请求被拒绝；信号量tryAcquire成功，放行。
+- 如果断路器允许通过，但是信号量tryAcquire失败，请求被拒绝，降级；信号量tryAcquire成功，放行。
 
 ### 3.4 降级
 
 Hystrix在以下几种情况下会走降级逻辑，保护当前服务不受依赖服务的影响：
 
-- `HystrixCommand#construct`或`HystrixCommand#run`抛出异常
-- 熔断器打开
-- 命令的线程池和队列或信号量的容量超额，命令被拒绝
-- 命令执行超时
+- `HystrixCommand#construct`或`HystrixCommand#run`抛出异常。
+- 熔断器处于打开状态。
+- 命令的线程池和队列或信号量的容量超额，命令被拒绝。
+- 命令执行超时。
 
 参考：  
 [Nginx限速模块初探](https://zhuanlan.zhihu.com/p/32391675)  

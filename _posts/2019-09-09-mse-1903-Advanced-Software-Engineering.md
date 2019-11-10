@@ -45,14 +45,31 @@ excerpt: 2019年03学期，高级软件工程。
 
 听课阵亡
 
-### 4、函数式编程、深度学习基础
+### 4、函数式编程
 
 教材与参考书：[haskell](https://learnxinyminutes.com/docs/haskell/)、[神经网络与深度学习](https://nndl.github.io/nndl-book.pdf)
 
 使用haskell解决八皇后问题
 
-### 5、
+### 5、6、神经网络与深度学习
 
-### 6、
+[神经网络与深度学习（邱锡鹏）](https://nndl.github.io/nndl-book.pdf)  
+[吴恩达](https://www.deeplearning.ai)
+Stanford CS224N
 
-### 7、
+- 动手实践深度学习
+  - Astom Zhang
+  - 李沐
+
+### 7、云计算的一些
+
+#### 7.1 论文相关
+
+- 读文献
+  - 一月一篇至一周一篇。
+  - 研究方向大约会有60~100篇核心文章，读完后会知道研究方向的主要问题和主要方法。
+  - 顶级会议，首选。
+  - 顶级期刊、顶级人物。
+- 看视频
+- 找人交流
+- 动手实践、编程

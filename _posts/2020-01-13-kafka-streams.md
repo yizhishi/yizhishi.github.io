@@ -91,8 +91,9 @@ Topologies:
 
 ### 拓扑
 
-Kafka Streams 通过拓扑定义应用的逻辑，拓扑包括点和边。
+Kafka Streams 通过拓扑定义处理逻辑，拓扑包括点和边。
 
-- 点，分为3类：Source、Sink和Processor，Source和Sink分别是拓扑的起止，Source从Kafka的Source topic中取消息处理，Sink把处理完的结果发往Kafka的Target topic
+- 点，分为3类：Source、Sink和Processor。Source和Sink分别是拓扑的起止，Source从Kafka的Source topic中取消息处理，Sink把处理完的结果发往Kafka的Target topic；Processor是
+- 边，流数据。
 
 ###

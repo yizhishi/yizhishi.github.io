@@ -51,7 +51,7 @@ bin/kafka-topics.sh --zookeeper localhost:2181 --list
 
 ### 2.1 官网的WordCount demo
 
-使用[Hello Kafka Streams](http://kafka.apache.org/24/documentation/streams/)官网提供的最简单的WordCount demo，在页面最下可以看到官网提供的`WordCountApplication`，如下（有小改动）：
+使用[Hello Kafka Streams](http://kafka.apache.org/24/documentation/streams/)官网提供的入门的WordCount demo，在页面最下可以看到官网提供的`WordCountApplication`，如下（有小改动）：
 
 ``` java
 // 略去import
@@ -146,13 +146,14 @@ Topologies:
       <-- KTABLE-TOSTREAM-0000000007
 ```
 
-由上可见，这个`Topology`又分为两个子拓扑，分别是子拓扑0和子拓扑1，对应[task0](http://kafka.apache.org/24/documentation/streams/architecture#streams_architecture_tasks)和[task1](跳转至本页的task，如果有)，具体如下：
+由上可见，这个`Topology`又分为两个子拓扑，分别是子拓扑0和子拓扑1，对应[Task0](http://kafka.apache.org/24/documentation/streams/architecture#streams_architecture_tasks)和[Task1](跳转至本页的task，如果有)，具体如下：
 ![WordCount的拓扑](https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/kafka-streams/topology.png)
 
 #### 2.1.2 Properties
 
 WordCount应用使用了4个`StreamsConfig`的配置，分别是：
-| key| value | descripe |
+
+| key | value | descripe |
 |--|--|--|
 | StreamsConfig.APPLICATION_ID_CONFIG | wordcount-application|应用名。3个作用：client-id的前缀；相同的应用名组成Kafka Streams集群；内部topic的前缀 |
 | StreamsConfig.BOOTSTRAP_SERVERS_CONFIG | 127.0.0.1:9092 | kafka地址，多个以","分隔 |

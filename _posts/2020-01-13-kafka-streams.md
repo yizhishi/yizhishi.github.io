@@ -290,11 +290,9 @@ stream-client [wordcount-application-b391295c-1bee-493e-9ebf-ac4ba0302190]State 
 
 ## 4 概念及其他
 
-<span id ="jump-to-topology">
+<span id ="jump-to-topology"></span>
 
 ### 4.1 topology
-
-</span>
 
 Kafka Streams 通过拓扑定义处理逻辑，拓扑由点和边组成。
 
@@ -303,11 +301,9 @@ Kafka Streams 通过拓扑定义处理逻辑，拓扑由点和边组成。
   - `Processor`负责处理流数据。分为`Kafka Streams DSL`和`Processor API`两类，前者提供常用的数据操作，如map、filter、join、aggregations；后者可以由开发者自己定制开发。
 - 边，数据流向。
 
-<span id ="jump-to-state">
+<span id ="jump-to-state"></span>
 
 ### 4.2 state
-
-</span>
 
 Stream thread的states
 
@@ -376,12 +372,9 @@ Kafka Streams的states
                 +--------------+
 ```
 
-
-<span id = "jump-to-ktable">
+<span id = "jump-to-ktable"></span>
 
 ### 4.3 KTable与KStream
-
-</span>
 
 KStream，数据流，所有数据通过insert only的方式加入到这个数据流中。
 
@@ -401,7 +394,7 @@ Ktable，数据集，像是数据库中的表，数据以update only的方式加
 
 kafka提供了一个默认的`partition`实现`DefaultPartitioner#partition`
 
-```
+``` java
     /**
      * Compute the partition for the given record.
      *

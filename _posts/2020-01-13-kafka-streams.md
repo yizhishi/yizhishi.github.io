@@ -153,7 +153,7 @@ Topologies:
 
 WordCount应用使用了4个`StreamsConfig`的配置，分别是：
 
-| key | value | descripe |
+| key | value | describe |
 |--|--|--|
 | StreamsConfig.APPLICATION_ID_CONFIG | wordcount-application|应用名。3个作用：client-id的前缀；相同的应用名组成Kafka Streams集群；内部topic的前缀 |
 | StreamsConfig.BOOTSTRAP_SERVERS_CONFIG | 127.0.0.1:9092 | kafka地址，多个以","分隔 |

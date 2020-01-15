@@ -49,9 +49,9 @@ bin/kafka-topics.sh --zookeeper localhost:2181 --list
 
 ## 2 创建Kafka Streams应用
 
-### 2.1 官网的WordCount demo
+### 2.1 官网的WordCount应用
 
-使用[Hello Kafka Streams](http://kafka.apache.org/24/documentation/streams/)官网提供的入门的WordCount demo，在页面最下可以看到官网提供的`WordCountApplication`，如下（有小改动）：
+使用[Hello Kafka Streams](https://kafka.apache.org/24/documentation/streams/)官网提供的入门的WordCount应用，在页面最下可以看到官网提供的`WordCountApplication`，如下（有小改动）：
 
 ``` java
 // 略去import
@@ -110,7 +110,7 @@ public class WordCountApplication {
 }
 ```
 
-由demo可见，构建一个`KafkaStreams`至少需要`Topology`和`Properties`两个参数（`KafkaStreams`总共提供了7个public的构造函数，3个已经弃用）。
+由上边代码可见，构建一个`KafkaStreams`至少需要`Topology`和`Properties`两个参数（`KafkaStreams`总共提供了7个public的构造函数，3个已经弃用）。
 
 #### 2.1.1 Topology
 
@@ -146,7 +146,7 @@ Topologies:
       <-- KTABLE-TOSTREAM-0000000007
 ```
 
-由上可见，这个`Topology`又分为两个子拓扑，分别是子拓扑0和子拓扑1，对应[Task0](http://kafka.apache.org/24/documentation/streams/architecture#streams_architecture_tasks)和[Task1](跳转至本页的task，如果有)，具体如下：
+由上可见，这个`Topology`又分为两个子拓扑，分别是子拓扑0和子拓扑1，对应[Task0](https://kafka.apache.org/24/documentation/streams/architecture#streams_architecture_tasks)和[Task1](跳转至本页的task，如果有)，具体如下：
 ![WordCount的拓扑](https://raw.githubusercontent.com/yizhishi/yizhishi.github.io/master/images/kafka-streams/topology.png)
 
 #### 2.1.2 Properties
@@ -160,16 +160,16 @@ WordCount应用使用了4个`StreamsConfig`的配置，分别是：
 | StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG | Serdes.String().getClass() | key序列和反序列的类 |
 | StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG | Serdes.String().getClass() | value序列和反序列的类 |
 
-`StreamsConfig`所有的配置可参考[Kafka Streams Configs](http://kafka.apache.org/24/documentation/#streamsconfigs)
+`StreamsConfig`所有的配置可查看[Kafka Streams Configs](https://kafka.apache.org/24/documentation/#streamsconfigs)
 <!-- 如果来得及的话，加在概念及其他中。并替换上边的官网链接 -->
 
 #### 2.1.3 内部topic
 
-这个demo启动后，会创建2个内部topic
+WordCount应用启动后，会创建2个内部topic
 
 - `wordcount-application-counts-store-repartition`，子拓扑0的`SinkNode`会把经过处理的数据发往这个名为repartition的内部topic，子拓扑1的`SourceNode`会从这个名为repartition取到经过子拓扑0处理过的数据。
 
-- `wordcount-application-counts-store-changelog`的topic，这个topic会记录WordCount应用聚合过的结果，这个topic使用了kafka的[`Log compaction`](http://kafka.apache.org/24/documentation/#compaction)功能，可以安全地清除旧数据，以防止topic无限增长。changelog用于[Kafka Streams容错处理](http://kafka.apache.org/24/documentation/streams/architecture#streams_architecture_recovery)。
+- `wordcount-application-counts-store-changelog`的topic，这个topic会记录WordCount应用聚合过的结果，这个topic使用了kafka的[`Log compaction`](https://kafka.apache.org/24/documentation/#compaction)功能，可以安全地清除旧数据，以防止topic无限增长。changelog用于[Kafka Streams容错处理](https://kafka.apache.org/24/documentation/streams/architecture#streams_architecture_recovery)。
 
 ### 2.2 启动WordCount应用
 

@@ -11,22 +11,22 @@ reward: false
 excerpt: kafka streams学习
 ---
 
-一个 Kafka Streams 的 WordCount 应用收到消息后是怎么处理的呢？
+本文将尝试从Kafka Streams的WordCount应用收到消息后如何处理来分析Kafka Streams的工作原理。
 
 ## 1 准备工作
 
-### 1.1 Kafka Streams 是什么
+### 1.1 Kafka Streams是什么
 
-> The easiest way to write mission-critical real-time applications and microservices
+> The easiest way to write mission-critical real-time applications and microservices.
 
-Kafka Streams 提供了一个最**简单**的，开发实时**流处理**应用的方式。因为：
+Kafka Streams提供了一个最**简单**的，开发实时**流处理**应用的方式。因为：
 
-- 它是一个jar包而非流处理框架。单独构建 Kafka Streams 应用只需要一个jar包；与其他项目集成也只需引用这个jar包。
-- Kafka Streams 只依赖 Kafka ，输入数据和输出数据都存放在 Kafka 中。
+- 它是一个jar包而非流处理框架。单独构建Kafka Streams应用只需要一个jar包；与其他项目集成也只需引用这个jar包。
+-Kafka Streams只依赖Kafka，输入数据和输出数据都存放在Kafka中。
 
 ### 1.2 Kafka 集群
 
-假设我们已经有了 Zookeeper 和 Kafka 环境，现在需要创建两个 topic ：
+假设我们已经有了Zookeeper和Kafka环境，现在需要创建两个topic：
 
 - source topic，命名为TextLinesTopic，分区数为2，WordCount应用消费的topic。
 - target topic，命名为WordsWithCountsTopic，分区数为2，WordCount应用处理过的数据会发往这个topic。
@@ -36,7 +36,7 @@ Kafka Streams 提供了一个最**简单**的，开发实时**流处理**应用�
 ``` sh
 bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 2 --topic topic-name
 
-# 创建成功后，命令行显示 Created topic "topic-name".
+# 创建成功后，命令行显示Created topic "topic-name".
 ```
 
 创建两个topic后，查看topic列表

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: untitle
+title: Kafka Streams的WordCount收到消息后是怎么处理的呢？
 date: 2020-01-13 00:15:08 +0000
 category:
   - java
@@ -287,6 +287,8 @@ stream-client [wordcount-application-b391295c-1bee-493e-9ebf-ac4ba0302190]State 
   - 2.2 将结果发往changelog topic，用于容错处理。
 - 3 `ProcessorNode`（KTABLE-TOSTREAM-0000000007）把消息类型从[`KTable`](#jump-to-ktable)转化为[`KStream`](#jump-to-ktable)。
 - 4 通过`SinkNode`（KSTREAM-SINK-0000000008）将子拓扑1 count的消息发往target topic。
+
+**由于时间有限，很多Kafka Streams的概念，比如窗口等本文没有涉及。**
 
 ## 4 概念及其他
 

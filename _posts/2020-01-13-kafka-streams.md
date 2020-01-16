@@ -10,6 +10,21 @@ comment: false
 reward: false
 excerpt: kafka streams学习
 ---
+- [1 准备工作](#1-%e5%87%86%e5%a4%87%e5%b7%a5%e4%bd%9c)
+  - [1.1 Kafka Streams是什么](#11-kafka-streams%e6%98%af%e4%bb%80%e4%b9%88)
+  - [1.2 Kafka 集群](#12-kafka-%e9%9b%86%e7%be%a4)
+- [2 创建Kafka Streams应用](#2-%e5%88%9b%e5%bb%bakafka-streams%e5%ba%94%e7%94%a8)
+  - [2.1 官网的WordCount应用](#21-%e5%ae%98%e7%bd%91%e7%9a%84wordcount%e5%ba%94%e7%94%a8)
+    - [2.1.1 Topology](#211-topology)
+    - [2.1.2 Properties](#212-properties)
+    - [2.1.3 内部topic](#213-%e5%86%85%e9%83%a8topic)
+  - [2.2 启动WordCount应用](#22-%e5%90%af%e5%8a%a8wordcount%e5%ba%94%e7%94%a8)
+- [3 往source topic 发消息](#3-%e5%be%80source-topic-%e5%8f%91%e6%b6%88%e6%81%af)
+- [4 概念及其他](#4-%e6%a6%82%e5%bf%b5%e5%8f%8a%e5%85%b6%e4%bb%96)
+  - [4.1 topology](#41-topology)
+  - [4.2 state](#42-state)
+  - [4.3 KTable与KStream](#43-ktable%e4%b8%8ekstream)
+  - [4.4 Kafka发送消息时，如何确定分区](#44-kafka%e5%8f%91%e9%80%81%e6%b6%88%e6%81%af%e6%97%b6%e5%a6%82%e4%bd%95%e7%a1%ae%e5%ae%9a%e5%88%86%e5%8c%ba)
 
 本文将尝试从Kafka Streams的WordCount应用收到消息后如何处理来分析Kafka Streams的工作原理。
 
@@ -22,7 +37,7 @@ excerpt: kafka streams学习
 Kafka Streams提供了一个最**简单**的，开发实时**流处理**应用的方式。因为：
 
 - 它是一个jar包而非流处理框架。单独构建Kafka Streams应用只需要一个jar包；与其他项目集成也只需引用这个jar包。
--Kafka Streams只依赖Kafka，输入数据和输出数据都存放在Kafka中。
+- Kafka Streams只依赖Kafka，输入数据和输出数据都存放在Kafka中。
 
 ### 1.2 Kafka 集群
 

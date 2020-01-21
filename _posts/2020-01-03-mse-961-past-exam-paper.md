@@ -1,11 +1,11 @@
 ---
 layout: post
 title: 复旦大学软件工程研究生专业课961真题回忆
-date: 2020-01-13 00:15:08 +0000
+date: 2020-01-10 00:15:08 +0000
 category:
-  - java
+  - study
 tags:
-  - kafka-streams
+  - mse
 comment: false
 reward: false
 excerpt: kafka streams学习

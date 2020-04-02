@@ -58,7 +58,7 @@ systemctl stop firewalld && systemctl disable firewalld
 
 #### 1.1.4. 禁用 SELinux
 
-临时生效
+有两种方式禁用，临时生效，不需要重启，重启后失效
 
 ``` sh
 setenforce 0
@@ -99,14 +99,14 @@ sysctl -p
 使用1.15.2版本的 k8s ，对应 docker 版本如下：
 
 ``` sh
-Kubernetes 1.15.2  -->Docker版本1.13.1、17.03、17.06、17.09、18.06、18.09
+Kubernetes 1.15.2   -->   Docker版本1.13.1、17.03、17.06、17.09、18.06、18.09
 ```
 
-选择安装 18.06.1-ce 版本的 docker
+这里选择 18.06.1-ce 版本的 docker 进行安装
 
 ``` sh
 # 安装 yum 工具包
-yum -y install yum-utils
+yum install -y yum-utils
 
 # 添加 yum 源
 yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
@@ -146,7 +146,7 @@ systemctl start kubelet && systemctl enable kubelet
 
 #### 1.2.1 master 节点初始化
 
-1. 在 master 节点执行初始化命令。
+- 在 master 节点执行初始化命令。
 
 ``` sh
 # 初始化命令
@@ -172,7 +172,7 @@ Then you can join any number of worker nodes by running the following on each as
 kubeadm join ${master的私网IP}:6443 --token ${your token} --discovery-token-ca-cert-hash sha256:${your sha256}
 ```
 
-2. 在 node 节点执行 master 节点初始化后返回的`kubeadm join ${master的私网IP}:6443`，加入 k8s 集群。
+- 在 node 节点执行 master 节点初始化后返回的`kubeadm join ${master的私网IP}:6443`，加入 k8s 集群。
 
 ``` sh
 kubeadm join ${master的私网IP}:6443 --token ${your token} --discovery-token-ca-cert-hash sha256:${your sha256}
@@ -187,9 +187,7 @@ This node has joined the cluster:
 Run 'kubectl get nodes' on the control-plane to see this node join the cluster.
 ```
 
-3. 在 master 节点执行`kubectl get nodes`
-
-先给 kubectl 起个别名 k ，简化一部分操作
+- 在 master 节点，给 kubectl 起个别名 k ，简化一部分操作
 
 ``` sh
 vi ~/.bashrc
@@ -199,8 +197,11 @@ alias k='kubectl'
 
 # 刷新使修改生效
 source ~/.bashrc
+```
 
+- 在 master 节点执行`kubectl get nodes`
 
+``` sh
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
@@ -215,11 +216,12 @@ k8s-node1    NotReady   <none>   14m   v1.15.2
 k8s-node2    NotReady   <none>   14m   v1.15.2
 ```
 
-4. 安装网络插件——calico
+- 安装网络插件——calico
 
-第3步查看 nodes ，发现状态是`NotReady`，查看`kubelet`日志发现网络没有就绪。
+`kubectl get nodes` ，发现状态是`NotReady`，查看`kubelet`的日志发现网络没有就绪（这一点在 master 节点的初始化日志中有提示`You should now deploy a pod network to the cluster.`）。
 
 ``` sh
+# 查看kubelet日志
 journalctl -f -u kubelet
 
 # 日志
@@ -227,7 +229,7 @@ kubelet.go:2169] Container runtime network not ready: NetworkReady=false reason:
 cni.go:213] Unable to update cni config: No networks found in /etc/cni/net.d
 ```
 
-这是因为 k8s 本身并不提供网络功能，但是提供了容器网络接口（CNI）。有一系列开源的网络插件实现了CNI解决集群的容器联网问题，比如flannel、calico、canal等等，这里我选择 [calico](https://www.projectcalico.org/) 作为解决方案。
+这是因为 k8s 本身并不提供网络功能，但是提供了容器网络接口（`CNI`）。有一系列开源的网络插件实现了`CNI`解决集群的容器联网问题，比如`flannel、calico、canal`等等，这里我选择 [calico](https://www.projectcalico.org/) 作为解决方案。
 
 ``` sh
 mkdir -p /etc/cni/net.d/
@@ -240,17 +242,16 @@ k apply -f calico.yaml
 
 # 查看节点状态
 k get nodes
-
 ```
 
-节点状态已经是`Ready`。但是查看pod的状态，发现`calico-no`存在`READY 0/1`的情况。
+节点状态已经是`Ready`。但是查看pod的状态，发现`calico-node`存在`READY 0/1`的情况。
 
 ``` sh
 k get pod --all-namespaces
 
 # pod的状态
-NAMESPACE     NAME                                      READY   STATUS    RESTARTS   AGE
-kube-system   calico-node-xxx                         0/1     Running   0          118m
+NAMESPACE   NAME              READY   STATUS    RESTARTS    AGE
+kube-system calico-node-xxx   0/1     Running   0           118m
 
 # 查看pod信息
 k describe pod -n kube-system calico-node-xxx
@@ -259,9 +260,30 @@ k describe pod -n kube-system calico-node-xxx
 Readiness probe failed: calico/node is not ready: BIRD is not ready: BGP not established with
 ```
 
-查看`calico-node`的详细信息后出现`Readiness probe failed: calico/node is not ready: BIRD is not ready: BGP not established with`的报错信息。因为官方的getting-started太傻白甜，没有把`IP_AUTODETECTION_METHOD`这个IP检测方法的参数放入`calico.yaml`中，`calico`会使用第一个找到的`network interface`（往往是错误的interface），导致`calico`把`master`也算进`nodes`，于是`master BGP`启动失败，而其他`workers`则启动成功。
+查看`calico-node`的详细信息后出现`Readiness probe failed: calico/node is not ready: BIRD is not ready: BGP not established with`的报错信息。因为官方的`getting-started`太傻白甜，没有把`IP_AUTODETECTION_METHOD`这个IP检测方法的参数放入`calico.yaml`中，`calico`会使用第一个找到的`network interface`（往往是错误的interface），导致`calico`把`master`也算进`nodes`，于是`master BGP`启动失败，而其他`workers`则启动成功。
 
+[解决方法](https://blog.crazyphper.com/2019/12/12/calico-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB/)：
 
+``` sh
+vi ~/calico/calico.yaml
+
+...
+            # Cluster type to identify the deployment type
+            - name: CLUSTER_TYPE
+              value: "k8s,bgp"
+            # Auto-detect the BGP IP address.
+
+            # 新增部分开始
+            - name: IP_AUTODETECTION_METHOD
+              value: "interface=eth0"
+            # value: "interface=eth.*"
+            # value: "interface=can-reach=www.baidu.com"
+            # 新增部分结束
+
+            - name: IP
+              value: "autodetect"
+...
+```
 
 <!--
 选择`flannel`作为网络插件
@@ -287,29 +309,135 @@ k get pod --all-namespaces
 
 ### 2.1 helm安装
 
-helm 是 k8s 的包管理工具，类似Linux系统下的包管理器，如yum/apt等。
+helm 是 k8s 的包管理工具，类似Linux系统下的包管理器，如yum。这里使用二进制方式进行安装。
+
+``` sh
+wget https://get.helm.sh/helm-v2.10.0-linux-amd64.tar.gz
+tar -zxvf helm-v2.10.0-linux-amd64.tar.gz
+mv linux-amd64/helm /usr/local/bin/helm
+
+# 验证安装
+helm version
+
+# 创建serviceaccount
+k -n kube-system create serviceaccount tiller
+
+# 初始化
+helm init --service-account tiller --tiller-image=registry.cn-hangzhou.aliyuncs.com/google_container/tiller:2.10.0 --upgrade --skip-refresh
+
+helm repo update
+```
+
+### 2.2 istio安装
 
 ``` sh
 
+cd ~
+
+# 下载istio
+export ISTIO_VERSION=1.3.6
+curl -L https://git.io/getLatestIstio | sh -
+cd istio-${ISTIO_VERSION}
+
+# install the Istio CRDs
+for i in install/kubernetes/helm/istio-init/files/crd*yaml; do kubectl apply -f $i; done
+
+# create istio-system namespace
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: istio-system
+  labels:
+    istio-injection: disabled
+EOF
+
 ```
 
+这里使用没有sidecar的方式进行istio的安装
+
+``` sh
+# 没有sidecar
+helm template --namespace=istio-system --set prometheus.enabled=false --set mixer.enabled=false --set mixer.policy.enabled=false --set mixer.telemetry.enabled=false --set pilot.sidecar=false --set pilot.resources.requests.memory=128Mi --set galley.enabled=false --set global.useMCP=false --set security.enabled=false --set global.disablePolicyChecks=true --set sidecarInjectorWebhook.enabled=false --set global.proxy.autoInject=disabled --set global.omitSidecarInjectorConfigMap=true --set gateways.istio-ingressgateway.autoscaleMin=1 --set gateways.istio-ingressgateway.autoscaleMax=2 --set pilot.traceSampling=100 --set global.mtls.auto=false install/kubernetes/helm/istio > ./istio-lean.yaml
+
+k apply -f ~/${ISTIO_VERSION}/istio-lean.yaml
+
+# 查看状态
+k get pods -n istio-system --watch
+```
+
+## 3. 安装 Knative
+
+Knative 现在有2个关键组件：Serving和Eventing（Building组件被tekton替代）。 Knative 所需的镜像国内无法下载，我已经上传至[docker hub](https://hub.docker.com/)。
+
+### 3.1. 安装 Serving 组件
+
+``` sh
+# 下载所需镜像
+docker pull yizhishi/knative_serving_cmd_autoscaler:v0.13.0
+docker pull yizhishi/knative_serving_cmd_autoscaler_hpa:v0.13.0
+docker pull yizhishi/knative_serving_cmd_controller:v0.13.0
+docker pull yizhishi/knative_serving_cmd_activator:v0.13.0
+docker pull yizhishi/knative_serving_cmd_networking_istio:v0.13.0
+docker pull yizhishi/knative_serving_cmd_webhook:v0.13.0
+docker pull yizhishi/knative_serving_cmd_queue:v0.13.0
+
+k apply --filename https://github.com/knative/serving/releases/download/v0.13.0/serving-crds.yaml
+
+# 这个serving-core.yaml里的镜像地址我已经修改过
+k apply --filename https://github.com/knative/serving/releases/download/v0.13.0/serving-core.yaml
+
+# 这个serving-istio.yaml里的镜像地址我已经修改过
+k apply --filename https://github.com/knative/serving/releases/download/v0.13.0/serving-istio.yaml
+
+k -n istio-system get service istio-ingressgateway
+
+```
+
+Serving 组件部署结束后，就可以进行3.3步进行demo应用的部署。
+
+### 3.2. 安装 Serving 组件
+
+### 3.3. 部署demo
+
+``` sh
+mkdir -p ~/knative-demo/ && cd ~/knative-demo/ && >service.yaml
+
+vi service.yaml
+
+# 讲下边内容写进service.yaml
+apiVersion: serving.knative.dev/v1 # Current version of Knative
+kind: Service
+metadata:
+  name: helloworld-go # The name of the app
+  namespace: default # The namespace the app will use
+spec:
+  template:
+    spec:
+      containers:
+        - image: yizhishi/helloworld-go # The URL to the image of the app
+          env:
+            - name: TARGET # The environment variable printed out by the sample app
+              value: "Go Sample v1"
 
 
 
+k apply -f service.yaml
 
+# 查看knative service
+k get ksvc helloworld-go
 
+# 显示
+NAME            URL                                        LATESTCREATED        LATESTREADY           READY   REASON
+helloworld-go   http://helloworld-go.default.example.com   helloworld-go-xxxx   helloworld-go-xxxx    True
+```
 
+使用`curl -H "Host: helloworld-go.default.example.com" http://${master的私网IP}:31380`访问服务。
 
-
-
-
-
-
-
-
-
-
-
+``` sh
+# curl -H "Host: helloworld-go.default.example.com" http://${master的私网IP}:31380
+Hello World: Go Sample v1!
+```
 
 
 

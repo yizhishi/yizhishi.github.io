@@ -22,11 +22,11 @@ excerpt: 阿里云ecs部署Knative应用
 
 ### 1.1. [安装kubeadm](https://v1-15.docs.kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/)
 
-`kubeadm`是一个构建k8s集群的工具，它提供的kubeadm init和kubeadm join两个命令是快速构建k8s集群的最佳实践。
+kubeadm 是一个构建k8s集群的工具，它提供的 init 和 join 命令是快速构建k8s集群的最佳实践。
 
 #### 1.1.1. 设置 hostname
 
-分别在 master 和 node 执行下边命令设置 hostname 。
+分别在 master 节点和 workloads 节点执行下边命令设置 hostname 。
 
 ``` sh
 # 设置 master 节点的 hostname
@@ -91,7 +91,7 @@ docker version
 
 >This is required to allow containers to access the host filesystem, which is needed by pod networks for example. You have to do this until SELinux support is improved in the kubelet.
 
-`kubelet`暂不支持SELinux，所以禁用。
+ kubelet 暂不支持 SELinux ，所以禁用。
 
 ``` sh
 # Set SELinux in permissive mode (effectively disabling it)
@@ -102,7 +102,7 @@ sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 
 #### 1.1.5. 关闭交换内存
 
-当内存不足时，linux 会自动使用 swap 将部分内存数据存放到磁盘中，这样会使性能下降，为了性能考虑推荐关掉。
+当内存不足时， linux 会自动使用 swap 将部分内存数据存放到磁盘中，这样会使性能下降，为了性能考虑推荐关掉。
 
 ``` sh
 swapoff -a
@@ -132,7 +132,7 @@ sysctl -p
 #### 1.1.7. 安装 kubeadm 、 kubelet 、 kubectl
 
 ``` sh
-# 配置 kubernetes.repo的源，官方源国内无法访问，使用阿里云源
+# 配置 kubernetes.repo的源，官方源国内无法访问，使用阿里云的源
 cat <<EOF > /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
@@ -156,9 +156,9 @@ systemctl enable --now kubelet
 #### 1.2.1. master 节点初始化
 
 - 在 master 节点执行初始化命令。
-  - `pod-network-cidr`：设定pod网络的IP地址网段，不同的网络插件默认的值有所不同，`Calico`使用的是192.168.0.0/16，`Canal`和`flannel`使用的是10.244.0.0/16。
-  - `apiserver-advertise-address`：镜像拉取地址，使用阿里云的镜像仓库。
-  - `kubernetes-version`：指定版本。
+  - `pod-network-cidr`：设定 pod 网络的IP地址网段，不同的网络插件使用的值有所不同， Calico 使用的是192.168.0.0/16， Canal 和 Flannel 使用的是10.244.0.0/16。
+  - `image-repository`：镜像拉取地址，使用阿里云的镜像仓库。
+  - `kubernetes-version`：指定k8s版本。
 
 <!--  --apiserver-advertise-address=${master的私网IP}  -->
 
@@ -237,7 +237,7 @@ Then you can join any number of worker nodes by running the following on each as
 kubeadm join ${master的私网IP}:6443 --token ${your token} --discovery-token-ca-cert-hash sha256:${your sha256}
 ```
 
-- 确保 `kubectl`正常工作。
+- 确保 kubectl 正常工作。
 
 root用户执行`export KUBECONFIG=/etc/kubernetes/admin.conf`。
 
@@ -249,7 +249,7 @@ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 
-- 给`kubectl`起个别名 k ，简化一部分操作。
+- 给 kubectl 起个别名 k ，简化一部分操作。
 
 ``` sh
 vi ~/.bashrc
@@ -270,8 +270,8 @@ source ~/.bashrc
 k get nodes
 
 # 状态
-NAME         STATUS     ROLES    AGE     VERSION
-k8s-master   NotReady   master   5m54s   v1.15.2
+NAME          STATUS      ROLES     AGE     VERSION
+k8s-master    NotReady    master    5m54s   v1.15.2
 
 # 查看kubelet日志
 journalctl -f -u kubelet
@@ -281,7 +281,7 @@ kubelet.go:2169] Container runtime network not ready: NetworkReady=false reason:
 cni.go:213] Unable to update cni config: No networks found in /etc/cni/net.d
 ```
 
-这是因为 k8s 本身并不提供网络功能，但是提供了容器网络接口（`CNI`）。有一系列开源的网络插件实现了`CNI`解决集群的容器联网问题，比如`flannel、calico、canal`等等，这里我选择 [Calico](https://www.projectcalico.org/) 作为解决方案。
+这是因为 k8s 本身并不提供网络功能，但是提供了容器网络接口 CNI 。有一系列开源的网络插件实现了 CNI 解决集群的容器联网问题，比如flannel、calico、canal等等，这里我选择[Calico](https://www.projectcalico.org/)作为解决方案。
 
 ``` sh
 mkdir -p ~/calico/ && cd ~/calico/
@@ -294,19 +294,19 @@ k apply -f calico.yaml
 k get nodes
 
 # 状态
-NAME         STATUS   ROLES    AGE   VERSION
-k8s-master   Ready    master   11m   v1.15.2
+NAME          STATUS    ROLES     AGE   VERSION
+k8s-master    Ready     master    11m   v1.15.2
 
 ```
 
-节点状态已经是`Ready`。但是查看pod的状态，发现`calico-node`存在`READY 0/1`的情况。
+节点状态已经是 Ready 。但是查看 pod 的状态，发现 calico-node 存在 READY 0/1 的情况。
 
 ``` sh
 k get pod --all-namespaces
 
 # pod的状态
-NAMESPACE   NAME              READY   STATUS    RESTARTS    AGE
-kube-system calico-node-xxx   0/1     Running   0           118m
+NAMESPACE     NAME              READY   STATUS    RESTARTS    AGE
+kube-system   calico-node-xxx   0/1     Running   0           118m
 
 # 查看pod信息
 k describe pod -n kube-system calico-node-xxx
@@ -315,7 +315,7 @@ k describe pod -n kube-system calico-node-xxx
 Readiness probe failed: calico/node is not ready: BIRD is not ready: BGP not established with
 ```
 
-查看`calico-node`的详细信息后出现`Readiness probe failed: calico/node is not ready: BIRD is not ready: BGP not established with`的报错信息。因为官方的`getting-started`太傻白甜，没有把`IP_AUTODETECTION_METHOD`这个IP检测方法的参数放入`calico.yaml`中，`calico`会使用第一个找到的`network interface`（往往是错误的interface），导致`calico`把`master`也算进`nodes`，于是`master BGP`启动失败，而其他`workers`则启动成功。
+查看 calico-node 的详细信息后出现 Readiness probe failed: calico/node is not ready: BIRD is not ready: BGP not established with 的报错信息。因为官方的 getting-started 没有把 IP_AUTODETECTION_METHOD 这个IP检测方法的参数放入 calico.yaml 中， calico 会使用第一个找到的 network interface （往往是错误的interface），导致 calico 把 master 也算进 nodes ，于是 master BGP 启动失败，而其他 workers 则启动成功。
 
 [解决方法](https://blog.crazyphper.com/2019/12/12/calico-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB/)：
 
@@ -340,15 +340,15 @@ vi ~/calico/calico.yaml
 ...
 ```
 
-- master 节点参与pod调度
+- master 节点参与 pod 调度
 
-出于安全考虑，默认配置下Kubernetes不会将Pod调度到Master节点。如果希望将k8s-master也当作Node使用，可以执行如下命令：
+出于安全考虑，默认配置下不会将 pod 调度到 master 节点。如果希望将 k8s-master 也当作 workloads 节点使用，可以执行如下命令：
 
 ``` sh
 k taint node k8s-master node-role.kubernetes.io/master-
 ```
 
-其中k8s-master是主机节点hostname如果要恢复Master Only状态，执行如下命令：
+如果要恢复 Master Only 状态，执行如下命令：
 
 ``` sh
 k taint node k8s-master node-role.kubernetes.io/master=true:NoSchedule
@@ -386,10 +386,10 @@ Run 'kubectl get nodes' on the control-plane to see this node join the cluster.
 k get nodes
 
 # kubectl get nodes 返回
-NAME         STATUS   ROLES    AGE     VERSION
-k8s-master   Ready    master   23m     v1.15.2
-k8s-node1    Ready    <none>   3m40s   v1.15.2
-k8s-node1    Ready    <none>   3m43s   v1.15.2
+NAME          STATUS    ROLES     AGE     VERSION
+k8s-master    Ready     master    23m     v1.15.2
+k8s-node1     Ready     <none>    3m40s   v1.15.2
+k8s-node1     Ready     <none>    3m43s   v1.15.2
 ```
 
 <!--
@@ -414,7 +414,7 @@ k get pod --all-namespaces
 
 ### 2.1 [helm安装](https://www.jianshu.com/p/2a96b06febc6)
 
-[helm](https://helm.sh/)是 k8s 的包管理工具，类似Linux系统下的包管理器，如yum。这里使用二进制方式进行安装。
+[helm](https://helm.sh/)是 k8s 的包管理工具，类似 Linux 系统下的包管理器，如 yum。这里使用二进制方式进行安装。
 
 ``` sh
 wget https://get.helm.sh/helm-v2.10.0-linux-amd64.tar.gz
@@ -464,7 +464,7 @@ EOF
 
 ```
 
-这里使用没有sidecar的方式进行istio的安装。
+这里使用没有 sidecar 的方式进行 istio 的安装。
 
 ``` sh
 # 没有sidecar
@@ -479,7 +479,7 @@ k get pods -n istio-system --watch
 
 ## 3. [安装Knative](https://knative.dev/docs/install/any-kubernetes-cluster)
 
-`Knative`现在有2个关键组件：`Serving`和`Eventing`（早起的`Building`组件已被`Tekton`替代）。 Knative 所需的镜像国内无法下载，我已经上传至[docker hub](https://hub.docker.com/)。
+ Knative 现在有2个关键组件： Serving 和 Eventing （早期的 Building 组件已被 Tekton 替代）。 Knative 所需的镜像国内无法下载，我已经上传至[docker hub](https://hub.docker.com/)。
 
 ### 3.1. [安装Serving组件](https://knative.dev/docs/install/any-kubernetes-cluster/#installing-the-serving-component)
 
@@ -519,7 +519,7 @@ mkdir -p ~/knative-demo/ && cd ~/knative-demo/ && >service.yaml
 
 vi service.yaml
 
-# 讲下边内容写进service.yaml
+# 将下边内容写进service.yaml
 apiVersion: serving.knative.dev/v1 # Current version of Knative
 kind: Service
 metadata:
@@ -594,9 +594,9 @@ kubectl proxy --address='172.19.190.69'  --accept-hosts='^*$'
 
 参考：
 
-[Knative](https://knative.dev/)
+[Knative官网](https://knative.dev/)
 
-[k8s](https://v1-15.docs.kubernetes.io/)
+[Kubernetes官网](https://v1-15.docs.kubernetes.io/)
 
 [helm tiller 离线安装](https://www.jianshu.com/p/2a96b06febc6)
 

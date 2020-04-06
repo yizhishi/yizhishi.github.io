@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 阿里云ecs从零开始部署Knative应用
+title: 阿里云ecs部署Knative应用
 date: 2020-03-31 00:15:08 +0000
 category:
   - cloud-native

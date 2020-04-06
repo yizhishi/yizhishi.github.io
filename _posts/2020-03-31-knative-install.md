@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 阿里云ecs从零开始部署Knative
+title: 阿里云ecs从零开始部署Knative应用
 date: 2020-03-31 00:15:08 +0000
 category:
   - cloud-native
@@ -8,7 +8,7 @@ tags:
   - serverless
 comment: false
 reward: false
-excerpt: 阿里云ecs部署Knative
+excerpt: 阿里云ecs部署Knative应用
 ---
 
 [Knative](https://knative.dev/) 是谷歌在2018年开源的 Serverless 框架，旨在提供一套简单易用的 Serverless 方案，把 Serverless 标准化。目前参与 Knative 项目的公司有：Google、Pivotal、IBM、Red Hat、SAP。
@@ -18,9 +18,11 @@ excerpt: 阿里云ecs部署Knative
 - v1.15或更高版本的k8s集群
 - 1.3.6版本的Istio（使用Istio做网络层）
 
-## 1. 安装 k8s 集群
+## 1. [k8s](https://v1-15.docs.kubernetes.io/)
 
-### 1.1. k8s 集群准备工作
+### 1.1. [安装kubeadm](https://v1-15.docs.kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/)
+
+`kubeadm`是一个构建k8s集群的工具，它提供的kubeadm init和kubeadm join两个命令是快速构建k8s集群的最佳实践。
 
 #### 1.1.1. 设置 hostname
 
@@ -37,66 +39,29 @@ hostnamectl --static set-hostname k8s-node1
 hostnamectl --static set-hostname k8s-node2
 ```
 
-**以下 1.1.2~1.1.8 的操作需要在所有节点进行。**
+**以下 1.1.2~1.1.7 的操作需要在所有节点进行。**
 
 #### 1.1.2. 设置 hosts
 
 ``` sh
 vi /etc/hosts
 
-#在 /ets/hosts 文件下边添加， master 和 node 节点的 ip
+#在 /ets/hosts 文件添加， master 和 node 节点的 ip
 ${master的私网IP}     k8s-master
 ${node1的私网IP}      k8s-node1
 ${node2的私网IP}      k8s-node2
 ```
 
+<!-- 
 #### 1.1.3. 停掉防火墙服务
-
 ``` sh
 systemctl stop firewalld && systemctl disable firewalld
 ```
+-->
 
-#### 1.1.4. 禁用 SELinux
+#### 1.1.3. 安装 docker
 
-有两种方式禁用，临时生效，不需要重启，重启后失效
-
-``` sh
-setenforce 0
-```
-
-永久生效，需要重启。
-
-``` sh
-vi /etc/selinux/config
-
-# 修改 /etc/selinux/config 文件的 SELINUX=disabled
-```
-
-#### 1.1.5. 关闭交换内存
-
-``` sh
-swapoff -a
-
-vi /etc/fstab
-# 注释掉 swap 相关行（如果有）
-```
-
-#### 1.1.6. 修改 iptables 相关参数
-
-``` sh
-vi /etc/sysctl.conf
-
-# /etc/sysctl.conf 添加如下内容
-net.bridge.bridge-nf-call-ip6tables = 1
-net.bridge.bridge-nf-call-iptables = 1
-
-# 使配置生效
-sysctl -p
-```
-
-#### 1.1.7. 安装 docker
-
-使用1.15.2版本的 k8s ，对应 docker 版本如下：
+使用 docker 作为容器运行时，1.15.2版本的 k8s 对应 docker 版本如下：
 
 ``` sh
 Kubernetes 1.15.2   -->   Docker版本1.13.1、17.03、17.06、17.09、18.06、18.09
@@ -119,9 +84,52 @@ systemctl start docker && systemctl enable docker
 
 # 验证是否安装成功
 docker version
+
 ```
 
-#### 1.1.8. 安装 kubeadm 、 kubelet 、 kubectl
+#### 1.1.4. 禁用 SELinux
+
+>This is required to allow containers to access the host filesystem, which is needed by pod networks for example. You have to do this until SELinux support is improved in the kubelet.
+
+`kubelet`暂不支持SELinux，所以禁用。
+
+``` sh
+# Set SELinux in permissive mode (effectively disabling it)
+setenforce 0
+sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+
+```
+
+#### 1.1.5. 关闭交换内存
+
+当内存不足时，linux 会自动使用 swap 将部分内存数据存放到磁盘中，这样会使性能下降，为了性能考虑推荐关掉。
+
+``` sh
+swapoff -a
+
+vi /etc/fstab
+# 注释掉 swap 相关行（如果有）
+```
+
+#### 1.1.6. 修改 iptables 相关参数
+
+>Some users on RHEL/CentOS 7 have reported issues with traffic being routed incorrectly due to iptables being bypassed. You should ensure net.bridge.bridge-nf-call-iptables is set to 1 in your sysctl config
+
+确保流量被正确路由。
+
+``` sh
+vi /etc/sysctl.conf
+
+# /etc/sysctl.conf 添加如下内容
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+
+# 使配置生效
+sysctl -p
+
+```
+
+#### 1.1.7. 安装 kubeadm 、 kubelet 、 kubectl
 
 ``` sh
 # 配置 kubernetes.repo的源，官方源国内无法访问，使用阿里云源
@@ -136,25 +144,82 @@ gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors
 EOF
 
 # 15.2 版本的kubeadm
-yum install -y kubeadm-1.15.2 kubelet-1.15.2 kubectl-1.15.2
+yum install -y kubeadm-1.15.2 kubelet-1.15.2 kubectl-1.15.2 --disableexcludes=kubernetes
 
 # 启动kubelet服务
-systemctl start kubelet && systemctl enable kubelet
+systemctl enable --now kubelet
+
 ```
 
-### 1.2 安装 k8s
+### 1.2. [创建k8s集群](https://v1-15.docs.kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/)
 
-#### 1.2.1 master 节点初始化
+#### 1.2.1. master 节点初始化
 
 - 在 master 节点执行初始化命令。
+  - `pod-network-cidr`：设定pod网络的IP地址网段，不同的网络插件默认的值有所不同，`Calico`使用的是192.168.0.0/16，`Canal`和`flannel`使用的是10.244.0.0/16。
+  - `apiserver-advertise-address`：镜像拉取地址，使用阿里云的镜像仓库。
+  - `kubernetes-version`：指定版本。
+
+<!--  --apiserver-advertise-address=${master的私网IP}  -->
 
 ``` sh
 # 初始化命令
-kubeadm init --apiserver-advertise-address=${master的私网IP} --image-repository registry.aliyuncs.com/google_containers --kubernetes-version v1.15.2 --pod-network-cidr=192.168.0.0/16
+kubeadm init --pod-network-cidr=192.168.0.0/16 --image-repository registry.aliyuncs.com/google_containers --kubernetes-version v1.15.2
 
+```
+
+``` sh
 # 初始化结束后返回：
-...
-...
+[init] Using Kubernetes version: v1.15.2
+[preflight] Running pre-flight checks
+  [WARNING IsDockerSystemdCheck]: detected "cgroupfs" as the Docker cgroup driver. The recommended driver is "systemd". Please follow the guide at https://kubernetes.io/docs/setup/cri/
+[preflight] Pulling images required for setting up a Kubernetes cluster
+[preflight] This might take a minute or two, depending on the speed of your internet connection
+[preflight] You can also perform this action in beforehand using 'kubeadm config images pull'
+[kubelet-start] Writing kubelet environment file with flags to file "/var/lib/kubelet/kubeadm-flags.env"
+[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
+[kubelet-start] Activating the kubelet service
+[certs] Using certificateDir folder "/etc/kubernetes/pki"
+[certs] Generating "ca" certificate and key
+[certs] Generating "apiserver-kubelet-client" certificate and key
+[certs] Generating "apiserver" certificate and key
+[certs] apiserver serving cert is signed for DNS names [k8s-master kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local] and IPs [*.*.*.* *.*.*.*]
+[certs] Generating "front-proxy-ca" certificate and key
+[certs] Generating "front-proxy-client" certificate and key
+[certs] Generating "etcd/ca" certificate and key
+[certs] Generating "etcd/healthcheck-client" certificate and key
+[certs] Generating "etcd/server" certificate and key
+[certs] etcd/server serving cert is signed for DNS names [k8s-master localhost] and IPs [*.*.*.* 127.0.0.1 ::1]
+[certs] Generating "etcd/peer" certificate and key
+[certs] etcd/peer serving cert is signed for DNS names [k8s-master localhost] and IPs [*.*.*.* 127.0.0.1 ::1]
+[certs] Generating "apiserver-etcd-client" certificate and key
+[certs] Generating "sa" key and public key
+[kubeconfig] Using kubeconfig folder "/etc/kubernetes"
+[kubeconfig] Writing "admin.conf" kubeconfig file
+[kubeconfig] Writing "kubelet.conf" kubeconfig file
+[kubeconfig] Writing "controller-manager.conf" kubeconfig file
+[kubeconfig] Writing "scheduler.conf" kubeconfig file
+[control-plane] Using manifest folder "/etc/kubernetes/manifests"
+[control-plane] Creating static Pod manifest for "kube-apiserver"
+[control-plane] Creating static Pod manifest for "kube-controller-manager"
+[control-plane] Creating static Pod manifest for "kube-scheduler"
+[etcd] Creating static Pod manifest for local etcd in "/etc/kubernetes/manifests"
+[wait-control-plane] Waiting for the kubelet to boot up the control plane as static Pods from directory "/etc/kubernetes/manifests". This can take up to 4m0s
+[apiclient] All control plane components are healthy after 19.508137 seconds
+[upload-config] Storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
+[kubelet] Creating a ConfigMap "kubelet-config-1.15" in namespace kube-system with the configuration for the kubelets in the cluster
+[upload-certs] Skipping phase. Please see --upload-certs
+[mark-control-plane] Marking the node k8s-master as control-plane by adding the label "node-role.kubernetes.io/master=''"
+[mark-control-plane] Marking the node k8s-master as control-plane by adding the taints [node-role.kubernetes.io/master:NoSchedule]
+[bootstrap-token] Using token: 419gig.hr760wuwlr6l8zat
+[bootstrap-token] Configuring bootstrap tokens, cluster-info ConfigMap, RBAC Roles
+[bootstrap-token] configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
+[bootstrap-token] configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
+[bootstrap-token] configured RBAC rules to allow certificate rotation for all node client certificates in the cluster
+[bootstrap-token] Creating the "cluster-info" ConfigMap in the "kube-public" namespace
+[addons] Applied essential addon: CoreDNS
+[addons] Applied essential addon: kube-proxy
+
 Your Kubernetes control-plane has initialized successfully!
 
 To start using your cluster, you need to run the following as a regular user:
@@ -172,22 +237,19 @@ Then you can join any number of worker nodes by running the following on each as
 kubeadm join ${master的私网IP}:6443 --token ${your token} --discovery-token-ca-cert-hash sha256:${your sha256}
 ```
 
-- 在 node 节点执行 master 节点初始化后返回的`kubeadm join ${master的私网IP}:6443`，加入 k8s 集群。
+- 确保 `kubectl`正常工作。
+
+root用户执行`export KUBECONFIG=/etc/kubernetes/admin.conf`。
+
+非root用户执行如下命令。
 
 ``` sh
-kubeadm join ${master的私网IP}:6443 --token ${your token} --discovery-token-ca-cert-hash sha256:${your sha256}
-
-# 加入后命令行显示
-...
-...
-This node has joined the cluster:
-* Certificate signing request was sent to apiserver and a response was received.
-* The Kubelet was informed of the new secure connection details.
-
-Run 'kubectl get nodes' on the control-plane to see this node join the cluster.
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 
-- 在 master 节点，给 kubectl 起个别名 k ，简化一部分操作
+- 给`kubectl`起个别名 k ，简化一部分操作。
 
 ``` sh
 vi ~/.bashrc
@@ -199,41 +261,29 @@ alias k='kubectl'
 source ~/.bashrc
 ```
 
-- 在 master 节点执行`kubectl get nodes`
+- 安装网络插件
+
+执行`k get nodes` ，发现状态是`NotReady`，查看`kubelet`的日志发现网络没有就绪（这一点在 master 节点的初始化日志中有提示`You should now deploy a pod network to the cluster.`）。
 
 ``` sh
-mkdir -p $HOME/.kube
-sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-sudo chown $(id -u):$(id -g) $HOME/.kube/config
-
-# 查看 nodes
+# 查看状态
 k get nodes
 
-# kubectl get nodes 返回
-NAME         STATUS     ROLES    AGE   VERSION
-k8s-master   NotReady   master   23m   v1.15.2
-k8s-node1    NotReady   <none>   14m   v1.15.2
-k8s-node2    NotReady   <none>   14m   v1.15.2
-```
+# 状态
+NAME         STATUS     ROLES    AGE     VERSION
+k8s-master   NotReady   master   5m54s   v1.15.2
 
-- 安装网络插件——calico
-
-`kubectl get nodes` ，发现状态是`NotReady`，查看`kubelet`的日志发现网络没有就绪（这一点在 master 节点的初始化日志中有提示`You should now deploy a pod network to the cluster.`）。
-
-``` sh
 # 查看kubelet日志
 journalctl -f -u kubelet
 
-# 日志
+# 一部分日志
 kubelet.go:2169] Container runtime network not ready: NetworkReady=false reason:NetworkPluginNotReady message:docker: network plugin is not ready: cni config uninitialized
 cni.go:213] Unable to update cni config: No networks found in /etc/cni/net.d
 ```
 
-这是因为 k8s 本身并不提供网络功能，但是提供了容器网络接口（`CNI`）。有一系列开源的网络插件实现了`CNI`解决集群的容器联网问题，比如`flannel、calico、canal`等等，这里我选择 [calico](https://www.projectcalico.org/) 作为解决方案。
+这是因为 k8s 本身并不提供网络功能，但是提供了容器网络接口（`CNI`）。有一系列开源的网络插件实现了`CNI`解决集群的容器联网问题，比如`flannel、calico、canal`等等，这里我选择 [Calico](https://www.projectcalico.org/) 作为解决方案。
 
 ``` sh
-mkdir -p /etc/cni/net.d/
-
 mkdir -p ~/calico/ && cd ~/calico/
 
 wget https://docs.projectcalico.org/v3.8/manifests/calico.yaml
@@ -242,6 +292,11 @@ k apply -f calico.yaml
 
 # 查看节点状态
 k get nodes
+
+# 状态
+NAME         STATUS   ROLES    AGE   VERSION
+k8s-master   Ready    master   11m   v1.15.2
+
 ```
 
 节点状态已经是`Ready`。但是查看pod的状态，发现`calico-node`存在`READY 0/1`的情况。
@@ -285,6 +340,58 @@ vi ~/calico/calico.yaml
 ...
 ```
 
+- master 节点参与pod调度
+
+出于安全考虑，默认配置下Kubernetes不会将Pod调度到Master节点。如果希望将k8s-master也当作Node使用，可以执行如下命令：
+
+``` sh
+k taint node k8s-master node-role.kubernetes.io/master-
+```
+
+其中k8s-master是主机节点hostname如果要恢复Master Only状态，执行如下命令：
+
+``` sh
+k taint node k8s-master node-role.kubernetes.io/master=true:NoSchedule
+```
+
+#### 1.2.2. workloads节点加入集群
+
+在 workloads 节点执行 master 节点初始化后返回的`kubeadm join ${master的私网IP}:6443 ...`，加入 k8s 集群。
+
+``` sh
+kubeadm join ${master的私网IP}:6443 --token ${your token} --discovery-token-ca-cert-hash sha256:${your sha256}
+
+# 加入后命令行显示
+[preflight] Running pre-flight checks
+  [WARNING IsDockerSystemdCheck]: detected "cgroupfs" as the Docker cgroup driver. The recommended driver is "systemd". Please follow the guide at https://kubernetes.io/docs/setup/cri/
+[preflight] Reading configuration from the cluster...
+[preflight] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -oyaml'
+[kubelet-start] Downloading configuration for the kubelet from the "kubelet-config-1.15" ConfigMap in the kube-system namespace
+[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
+[kubelet-start] Writing kubelet environment file with flags to file "/var/lib/kubelet/kubeadm-flags.env"
+[kubelet-start] Activating the kubelet service
+[kubelet-start] Waiting for the kubelet to perform the TLS Bootstrap...
+
+This node has joined the cluster:
+* Certificate signing request was sent to apiserver and a response was received.
+* The Kubelet was informed of the new secure connection details.
+
+Run 'kubectl get nodes' on the control-plane to see this node join the cluster.
+```
+
+- 在 master 节点执行`k get nodes`查看机器状态。
+
+``` sh
+# 查看 nodes
+k get nodes
+
+# kubectl get nodes 返回
+NAME         STATUS   ROLES    AGE     VERSION
+k8s-master   Ready    master   23m     v1.15.2
+k8s-node1    Ready    <none>   3m40s   v1.15.2
+k8s-node1    Ready    <none>   3m43s   v1.15.2
+```
+
 <!--
 选择`flannel`作为网络插件
 
@@ -303,17 +410,17 @@ k get pod --all-namespaces
 ```
 -->
 
-## 2. 安装 istio
+## 2. [安装istio](https://knative.dev/docs/install/installing-istio/)
 
-参照[官网文档](https://knative.dev/docs/install/installing-istio/)进行安装，需要安装[helm](https://helm.sh/)
+### 2.1 [helm安装](https://www.jianshu.com/p/2a96b06febc6)
 
-### 2.1 helm安装
-
-helm 是 k8s 的包管理工具，类似Linux系统下的包管理器，如yum。这里使用二进制方式进行安装。
+[helm](https://helm.sh/)是 k8s 的包管理工具，类似Linux系统下的包管理器，如yum。这里使用二进制方式进行安装。
 
 ``` sh
 wget https://get.helm.sh/helm-v2.10.0-linux-amd64.tar.gz
+
 tar -zxvf helm-v2.10.0-linux-amd64.tar.gz
+
 mv linux-amd64/helm /usr/local/bin/helm
 
 # 验证安装
@@ -322,16 +429,19 @@ helm version
 # 创建serviceaccount
 k -n kube-system create serviceaccount tiller
 
+# 创建role
+kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
+
 # 初始化
-helm init --service-account tiller --tiller-image=registry.cn-hangzhou.aliyuncs.com/google_container/tiller:2.10.0 --upgrade --skip-refresh
+helm init --service-account tiller --tiller-image=registry.cn-hangzhou.aliyuncs.com/google_containers/tiller:v2.10.0 --upgrade --skip-refresh
 
 helm repo update
+
 ```
 
 ### 2.2 istio安装
 
 ``` sh
-
 cd ~
 
 # 下载istio
@@ -354,51 +464,55 @@ EOF
 
 ```
 
-这里使用没有sidecar的方式进行istio的安装
+这里使用没有sidecar的方式进行istio的安装。
 
 ``` sh
 # 没有sidecar
 helm template --namespace=istio-system --set prometheus.enabled=false --set mixer.enabled=false --set mixer.policy.enabled=false --set mixer.telemetry.enabled=false --set pilot.sidecar=false --set pilot.resources.requests.memory=128Mi --set galley.enabled=false --set global.useMCP=false --set security.enabled=false --set global.disablePolicyChecks=true --set sidecarInjectorWebhook.enabled=false --set global.proxy.autoInject=disabled --set global.omitSidecarInjectorConfigMap=true --set gateways.istio-ingressgateway.autoscaleMin=1 --set gateways.istio-ingressgateway.autoscaleMax=2 --set pilot.traceSampling=100 --set global.mtls.auto=false install/kubernetes/helm/istio > ./istio-lean.yaml
 
-k apply -f ~/${ISTIO_VERSION}/istio-lean.yaml
+k apply -f ~/istio-${ISTIO_VERSION}/istio-lean.yaml
 
 # 查看状态
 k get pods -n istio-system --watch
+
 ```
 
-## 3. 安装 Knative
+## 3. [安装Knative](https://knative.dev/docs/install/any-kubernetes-cluster)
 
-Knative 现在有2个关键组件：Serving和Eventing（Building组件被tekton替代）。 Knative 所需的镜像国内无法下载，我已经上传至[docker hub](https://hub.docker.com/)。
+`Knative`现在有2个关键组件：`Serving`和`Eventing`（早起的`Building`组件已被`Tekton`替代）。 Knative 所需的镜像国内无法下载，我已经上传至[docker hub](https://hub.docker.com/)。
 
-### 3.1. 安装 Serving 组件
+### 3.1. [安装Serving组件](https://knative.dev/docs/install/any-kubernetes-cluster/#installing-the-serving-component)
 
 ``` sh
 # 下载所需镜像
 docker pull yizhishi/knative_serving_cmd_autoscaler:v0.13.0
-docker pull yizhishi/knative_serving_cmd_autoscaler_hpa:v0.13.0
+docker pull yizhishi/knative_serving_cmd_autoscaler-hpa:v0.13.0
 docker pull yizhishi/knative_serving_cmd_controller:v0.13.0
 docker pull yizhishi/knative_serving_cmd_activator:v0.13.0
 docker pull yizhishi/knative_serving_cmd_networking_istio:v0.13.0
 docker pull yizhishi/knative_serving_cmd_webhook:v0.13.0
 docker pull yizhishi/knative_serving_cmd_queue:v0.13.0
 
-k apply --filename https://github.com/knative/serving/releases/download/v0.13.0/serving-crds.yaml
+# crd
+k apply -f https://github.com/knative/serving/releases/download/v0.13.0/serving-crds.yaml
 
-# 这个serving-core.yaml里的镜像地址我已经修改过
-k apply --filename https://github.com/knative/serving/releases/download/v0.13.0/serving-core.yaml
+# core components，这个serving-core.yaml里的镜像地址我已经修改过
+k apply -f https://raw.githubusercontent.com/yizhishi/knative-yaml/master/knative-serving/serving-core.yaml
 
 # 这个serving-istio.yaml里的镜像地址我已经修改过
-k apply --filename https://github.com/knative/serving/releases/download/v0.13.0/serving-istio.yaml
+k apply -f https://raw.githubusercontent.com/yizhishi/knative-yaml/master/knative-serving/serving-istio.yaml
 
-k -n istio-system get service istio-ingressgateway
+k get pod --all-namespaces -o wide --watch
+
+k get service -n istio-system istio-ingressgateway
 
 ```
 
-Serving 组件部署结束后，就可以进行3.3步进行demo应用的部署。
+<!-- 
+### 3.2. 安装`Eventing`组件
+ -->
 
-### 3.2. 安装 Serving 组件
-
-### 3.3. 部署demo
+### 3.2. [部署Knative应用](https://knative.dev/docs/serving/getting-started-knative-app/)
 
 ``` sh
 mkdir -p ~/knative-demo/ && cd ~/knative-demo/ && >service.yaml
@@ -421,8 +535,7 @@ spec:
               value: "Go Sample v1"
 
 
-
-k apply -f service.yaml
+k apply -f ~/knative-demo/service.yaml -v 7
 
 # 查看knative service
 k get ksvc helloworld-go
@@ -439,18 +552,55 @@ helloworld-go   http://helloworld-go.default.example.com   helloworld-go-xxxx   
 Hello World: Go Sample v1!
 ```
 
+<!-- 
 
 
+监控
+
+``` sh
+
+# 创建namespace
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: knative-monitoring
+  labels:
+    serving.knative.dev/release: "v0.13.0"
+EOF
+
+# 修改 config-observability
+kubectl edit cm -n knative-serving config-observability
+
+# 在data下 添加 metrics.request-metrics-backend-destination: prometheus
+
+kubectl apply --filename https://github.com/knative/serving/releases/download/v0.13.0/monitoring-metrics-prometheus.yaml
+
+# 访问ui
+kubectl port-forward -n knative-monitoring $(kubectl get pods -n knative-monitoring --selector=app=grafana --output=jsonpath="{.items..metadata.name}") 3000 --address ${私网IP}
+```
+
+kubectl 暴露
+kubectl proxy --address='172.19.190.69'  --accept-hosts='^*$'
+访问, http://47.100.160.30:8001/api/v1/namespaces/istio-system/services/zipkin:9411/proxy/zipkin/
 
 
+kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=jaeger -o jsonpath='{.items[0].metadata.name}') 16686:16686 --address 172.19.190.69
+
+
+kubectl proxy --address='172.19.190.69'  --accept-hosts='^*$'
+
+ -->
 
 参考：
-knative 官网
-k8s 官网
-calico 官网
-heml 官网
-https://blog.crazyphper.com/2019/12/12/calico-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB/
 
+[Knative](https://knative.dev/)
+
+[k8s](https://v1-15.docs.kubernetes.io/)
+
+[helm tiller 离线安装](https://www.jianshu.com/p/2a96b06febc6)
+
+[calico 常见问题汇总](https://blog.crazyphper.com/2019/12/12/calico-常见问题汇总/)
 
 <!--
 [windows 安装 Knative](https://knative.dev/docs/install/)，比较繁琐，害怕出错，记录下自己的安装历程。

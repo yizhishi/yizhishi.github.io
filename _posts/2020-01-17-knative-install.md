@@ -6,6 +6,7 @@ category:
   - cloud-native
 tags:
   - serverless
+  - knative
 comment: false
 reward: false
 excerpt: windows安装Knative

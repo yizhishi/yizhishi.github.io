@@ -8,7 +8,7 @@ tags:
   - kafka-streams
 comment: false
 reward: false
-excerpt: kafka streams学习
+excerpt: 通过入门 demo 学习 kafka streams
 ---
 - [1 准备工作](#1-%e5%87%86%e5%a4%87%e5%b7%a5%e4%bd%9c)
   - [1.1 Kafka Streams是什么](#11-kafka-streams%e6%98%af%e4%bb%80%e4%b9%88)

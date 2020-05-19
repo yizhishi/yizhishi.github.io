@@ -8,7 +8,7 @@ tags:
   - mse
 comment: false
 reward: false
-excerpt: kafka streams学习
+excerpt: 961真题考生回忆版本
 ---
 
 ## 2017 真题回忆

@@ -6,7 +6,6 @@ category:
   - cloud-native
 tags:
   - serverless
-  - Knative
 comment: false
 reward: false
 excerpt: serverless文章整理

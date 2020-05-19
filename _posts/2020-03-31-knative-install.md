@@ -6,6 +6,7 @@ category:
   - cloud-native
 tags:
   - serverless
+  - knative
 comment: false
 reward: false
 excerpt: 阿里云ecs部署Knative应用

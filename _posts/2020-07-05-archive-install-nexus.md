@@ -1,6 +1,6 @@
 ---
 layout: post
-title: [归档] nexus安装
+title: 归档 - nexus安装
 date: 2020-07-05 00:15:08 +0000
 category:
   - 归档

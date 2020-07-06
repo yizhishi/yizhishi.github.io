@@ -11,13 +11,13 @@ reward: false
 excerpt: Spring Cloud Gateway Actuator简介。
 ---
 
-- [Spring Cloud Gateway actuator 端点](#spring-cloud-gateway-actuator-%e7%ab%af%e7%82%b9)
-- [如何暴露端点](#%e5%a6%82%e4%bd%95%e6%9a%b4%e9%9c%b2%e7%ab%af%e7%82%b9)
-- [端点介绍（2.1.2.RELEASE版本）](#%e7%ab%af%e7%82%b9%e4%bb%8b%e7%bb%8d212release%e7%89%88%e6%9c%ac)
-  - [refresh 端点](#refresh-%e7%ab%af%e7%82%b9)
-  - [routes端点，get](#routes%e7%ab%af%e7%82%b9get)
-  - [/routes/{id}/combinedfilters端点](#routesidcombinedfilters%e7%ab%af%e7%82%b9)
-  - [/routes/{id}端点](#routesid%e7%ab%af%e7%82%b9)
+- [Spring Cloud Gateway actuator 端点](#spring-cloud-gateway-actuator-端点)
+- [如何暴露端点](#如何暴露端点)
+- [端点介绍（2.1.2.RELEASE版本）](#端点介绍212release版本)
+  - [refresh 端点](#refresh-端点)
+  - [routes端点，get](#routes端点get)
+  - [/routes/{id}/combinedfilters端点](#routesidcombinedfilters端点)
+  - [/routes/{id}端点](#routesid端点)
 
 ## Spring Cloud Gateway actuator 端点
 

@@ -12,6 +12,25 @@ reward: false
 excerpt: 阿里云ecs部署Knative应用
 ---
 
+- [1. k8s](#1-k8s)
+  - [1.1. 安装kubeadm](#11-安装kubeadm)
+    - [1.1.1. 设置 hostname](#111-设置-hostname)
+    - [1.1.2. 设置 hosts](#112-设置-hosts)
+    - [1.1.3. 安装 docker](#113-安装-docker)
+    - [1.1.4. 禁用 SELinux](#114-禁用-selinux)
+    - [1.1.5. 关闭交换内存](#115-关闭交换内存)
+    - [1.1.6. 修改 iptables 相关参数](#116-修改-iptables-相关参数)
+    - [1.1.7. 安装 kubeadm 、 kubelet 、 kubectl](#117-安装-kubeadm--kubelet--kubectl)
+  - [1.2. 创建k8s集群](#12-创建k8s集群)
+    - [1.2.1. master 节点初始化](#121-master-节点初始化)
+    - [1.2.2. workloads节点加入集群](#122-workloads节点加入集群)
+- [2. 安装istio](#2-安装istio)
+  - [2.1 helm安装](#21-helm安装)
+  - [2.2 istio安装](#22-istio安装)
+- [3. 安装Knative](#3-安装knative)
+  - [3.1. 安装Serving组件](#31-安装serving组件)
+  - [3.2. 部署Knative应用](#32-部署knative应用)
+
 [Knative](https://knative.dev/) 是谷歌在2018年开源的 Serverless 框架，旨在提供一套简单易用的 Serverless 方案，把 Serverless 标准化。目前参与 Knative 项目的公司有：Google、Pivotal、IBM、Red Hat、SAP。
 
 本文使用3台阿里云的ecs来搭建 Knative ，截止文章编写时， Knative 的版本是v0.13，需要：
@@ -553,8 +572,7 @@ helloworld-go   http://helloworld-go.default.example.com   helloworld-go-xxxx   
 Hello World: Go Sample v1!
 ```
 
-<!-- 
-
+<!--
 
 监控
 
@@ -585,9 +603,7 @@ kubectl 暴露
 kubectl proxy --address='172.19.190.69'  --accept-hosts='^*$'
 访问, http://47.100.160.30:8001/api/v1/namespaces/istio-system/services/zipkin:9411/proxy/zipkin/
 
-
 kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=jaeger -o jsonpath='{.items[0].metadata.name}') 16686:16686 --address 172.19.190.69
-
 
 kubectl proxy --address='172.19.190.69'  --accept-hosts='^*$'
 
@@ -617,7 +633,7 @@ kubectl proxy --address='172.19.190.69'  --accept-hosts='^*$'
 ``` sh
 systeminfo
 
-#命令行显示支持
+# 命令行显示支持
 Hyper-V 要求:     虚拟机监视器模式扩展: 是
                   固件中已启用虚拟化: 否
                   二级地址转换: 是
@@ -659,7 +675,7 @@ Client Version: version.Info{...}
 ``` sh
 minikube status
 
-#命令行显示
+# 命令行显示
 host: Running
 kubelet: Running
 apiserver: Running
@@ -679,13 +695,13 @@ For more information on starting your cluster on a specific Kubernetes version, 
 > minikube start使用过一次后，再次start，会提示如下：
 
 ``` sh
-* Microsoft Windows 10 Pro 10.0.18362 Build 18362 上的 minikube v1.7.2
+*Microsoft Windows 10 Pro 10.0.18362 Build 18362 上的 minikube v1.7.2
 * Using the virtualbox driver based on user configuration
-* 正在使用镜像存储库 registry.cn-hangzhou.aliyuncs.com/google_containers
+*正在使用镜像存储库 registry.cn-hangzhou.aliyuncs.com/google_containers
 * Reconfiguring existing host ...
-* Starting existing virtualbox VM for "minikube" ...
+*Starting existing virtualbox VM for "minikube" ...
 * 正在 Docker 19.03.5 中准备 Kubernetes v1.17.2…
-* 正在启动 Kubernetes ...
+*正在启动 Kubernetes ...
 * Enabling addons: default-storageclass, storage-provisioner
 * 完成！kubectl 已经配置至 "minikube"
 ```
@@ -737,23 +753,11 @@ Events:
 
 ### 0.3 [other operation](https://kubernetes.io/docs/setup/learning-environment/minikube/)
 
-
-
-
-
 https://knative.dev/docs/install/knative-with-minikube/
-
-
 
 https://knative.dev/docs/install/installing-istio/
 
 https://knative.dev/docs/install/installing-istio/#installing-istio-without-sidecar-injection
-
-
-
-
-
-
 
 参考
 

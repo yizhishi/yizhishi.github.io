@@ -14,7 +14,7 @@ excerpt: Haskell学习
 [haskell官网](https://www.haskell.org/)  
 [haskell wiki](https://wiki.haskell.org/)
 
-- [官网的tutorial](#%e5%ae%98%e7%bd%91%e7%9a%84tutorial)
+- [官网的tutorial](#官网的tutorial)
   - [step1 help](#step1-help)
   - [step2 Music is Math](#step2-music-is-math)
   - [step3 Your first Haskell expression](#step3-your-first-haskell-expression)

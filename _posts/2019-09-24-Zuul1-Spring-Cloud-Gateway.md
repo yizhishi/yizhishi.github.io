@@ -11,6 +11,28 @@ reward: false
 excerpt: Zuul1与Spring Cloud Gateway对比
 ---
 
+- [一、API网关](#一api网关)
+  - [1.1 Zuul1简介](#11-zuul1简介)
+    - [1.1.1 Tomcat](#111-tomcat)
+  - [1.2 Spring Cloud Gateway](#12-spring-cloud-gateway)
+- [二、对比](#二对比)
+  - [2.0 产品对比](#20-产品对比)
+  - [2.1 性能对比](#21-性能对比)
+    - [2.1.1 低并发场景](#211-低并发场景)
+    - [2.1.2 高并发场景](#212-高并发场景)
+    - [2.1.3 官方性能对比](#213-官方性能对比)
+  - [2.2 工作对比](#22-工作对比)
+  - [2.2.1 Zuul1](#221-zuul1)
+    - [RequestContext](#requestcontext)
+    - [FilterLoader](#filterloader)
+    - [ZuulServlet](#zuulservlet)
+    - [ZuulRunner](#zuulrunner)
+    - [FilterProcessor](#filterprocessor)
+    - [ZuulFilter](#zuulfilter)
+  - [2.2.2 Gateway](#222-gateway)
+    - [ReactorHttpHandlerAdapter](#reactorhttphandleradapter)
+- [总结](#总结)
+
 ## 一、API网关
 
 &emsp;&emsp;微服务架下，服务之间容易形成网状的调用关系。这种网状的调用关系呢，不便于管理和维护，这种场景下API网关应运而生。
@@ -399,8 +421,8 @@ Gateway的工作机制可参考下图（图片来自官方）
 
 #### ReactorHttpHandlerAdapter
 
-https://xujin.org/sc/gw/gw02/
-http://www.iocoder.cn/Spring-Cloud-Gateway/ouwenxue/intro/?vip
+<https://xujin.org/sc/gw/gw02/>
+<http://www.iocoder.cn/Spring-Cloud-Gateway/ouwenxue/intro/?vip>
 Gateway的请求入口是ReactorHttpHandlerAdapter
 
 ``` java

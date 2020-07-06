@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 归档 - nexus安装
+title: 归档 - nexus 部署
 date: 2020-07-05 00:15:08 +0000
 category:
   - 归档
@@ -8,7 +8,7 @@ tags:
   - maven
 comment: false
 reward: false
-excerpt: maven私服nexus的安装(阿里云ecs存在到期的风险, 所以把2017年左右的文字挪进git) 
+excerpt: maven 私服 nexus 的部署(阿里云ecs存在到期的风险, 所以把2017年左右的文字挪进git) 
 ---
 
 参照自己印象笔记安装

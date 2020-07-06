@@ -10,21 +10,22 @@ comment: false
 reward: false
 excerpt: 通过入门 demo 学习 kafka streams
 ---
-- [1 准备工作](#1-%e5%87%86%e5%a4%87%e5%b7%a5%e4%bd%9c)
-  - [1.1 Kafka Streams是什么](#11-kafka-streams%e6%98%af%e4%bb%80%e4%b9%88)
-  - [1.2 Kafka 集群](#12-kafka-%e9%9b%86%e7%be%a4)
-- [2 创建Kafka Streams应用](#2-%e5%88%9b%e5%bb%bakafka-streams%e5%ba%94%e7%94%a8)
-  - [2.1 官网的WordCount应用](#21-%e5%ae%98%e7%bd%91%e7%9a%84wordcount%e5%ba%94%e7%94%a8)
+
+- [1 准备工作](#1-准备工作)
+  - [1.1 Kafka Streams是什么](#11-kafka-streams是什么)
+  - [1.2 Kafka 集群](#12-kafka-集群)
+- [2 创建Kafka Streams应用](#2-创建kafka-streams应用)
+  - [2.1 官网的WordCount应用](#21-官网的wordcount应用)
     - [2.1.1 Topology](#211-topology)
     - [2.1.2 Properties](#212-properties)
-    - [2.1.3 内部topic](#213-%e5%86%85%e9%83%a8topic)
-  - [2.2 启动WordCount应用](#22-%e5%90%af%e5%8a%a8wordcount%e5%ba%94%e7%94%a8)
-- [3 往source topic 发消息](#3-%e5%be%80source-topic-%e5%8f%91%e6%b6%88%e6%81%af)
-- [4 概念及其他](#4-%e6%a6%82%e5%bf%b5%e5%8f%8a%e5%85%b6%e4%bb%96)
+    - [2.1.3 内部topic](#213-内部topic)
+  - [2.2 启动WordCount应用](#22-启动wordcount应用)
+- [3 往source topic 发消息](#3-往source-topic-发消息)
+- [4 概念及其他](#4-概念及其他)
   - [4.1 topology](#41-topology)
   - [4.2 state](#42-state)
-  - [4.3 KTable与KStream](#43-ktable%e4%b8%8ekstream)
-  - [4.4 Kafka发送消息时，如何确定分区](#44-kafka%e5%8f%91%e9%80%81%e6%b6%88%e6%81%af%e6%97%b6%e5%a6%82%e4%bd%95%e7%a1%ae%e5%ae%9a%e5%88%86%e5%8c%ba)
+  - [4.3 KTable与KStream](#43-ktable与kstream)
+  - [4.4 Kafka发送消息时，如何确定分区](#44-kafka发送消息时如何确定分区)
 
 本文将尝试从Kafka Streams的WordCount应用收到消息后如何处理来分析Kafka Streams的工作原理。
 

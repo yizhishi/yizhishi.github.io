@@ -93,4 +93,5 @@ Knative 一方面基于 Kubernetes 实现 Serverless 编排，另外一方面 Kn
 - 开发人员可以更专注，对服务器无感知。
 - 服务器资源利用优化。无请求时，缩容为0；请求到来时扩容0-m（带来了coldstart的问题)
 - 另，serverless最原始的需求和驱动力是？是Kubernetes不够好用还是Service Mesh不够友好？（我感觉与service mesh关系不太大)
-- 
+
+-

@@ -11,11 +11,21 @@ reward: false
 excerpt: Spring Cloud Gateway过滤器与Zuul1.x过滤器。
 ---
 
+- [Zuul1.x的过滤器如何工作](#zuul1x的过滤器如何工作)
+  - [RequestContext](#requestcontext)
+  - [ZuulServlet](#zuulservlet)
+  - [ZuulRunner](#zuulrunner)
+  - [FilterProcessor](#filterprocessor)
+  - [FilterLoader](#filterloader)
+  - [ZuulFilter](#zuulfilter)
+  - [总结](#总结)
+- [Gateway的过滤器如何工作](#gateway的过滤器如何工作)
+  - [FilteringWebHandler](#filteringwebhandler)
 Gateway的Filter与Zuul1.x的Filter的区别
 
 ## Zuul1.x的过滤器如何工作
 
-过滤器是Zuul1.x功能的核心部分，比如收到请求后在`PreDecorationFilter`里判断是通过ribbon路由`RibbonRoutingFilter`，还是直接跳转`SendForwardFilter`，还是简单路由`SimpleHostRoutingFilter`等操作都是通过过滤器实现，且Zuul1.x的过滤器简单易与扩展。
+过滤器是 Zuul1.x 功能的核心部分，比如收到请求后在`PreDecorationFilter`里判断是通过ribbon路由`RibbonRoutingFilter`，还是直接跳转`SendForwardFilter`，还是简单路由`SimpleHostRoutingFilter`等操作都是通过过滤器实现，且Zuul1.x的过滤器简单易与扩展。
 比较重要的类有`RequestContext`、`ZuulServlet`、`ZuulRunner`、`FilterProcessor`、`FilterLoader`。
 
 ### RequestContext
@@ -449,7 +459,5 @@ DisPatcherHandler ->
 ``` java
 
 ```
-
-### 总结
 
 通过``

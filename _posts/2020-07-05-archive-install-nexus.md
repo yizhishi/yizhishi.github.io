@@ -6,6 +6,7 @@ category:
   - 归档
 tags:
   - maven
+  - install
 comment: false
 reward: false
 excerpt: maven 私服 nexus 的部署(阿里云ecs存在到期的风险, 所以把2017年左右的文字挪进git) 

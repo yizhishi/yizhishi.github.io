@@ -5,7 +5,8 @@ date: 2020-07-05 00:15:08 +0000
 category:
   - 归档
 tags:
-  - maven
+  - wiki
+  - install
 comment: false
 reward: false
 excerpt: dokuwiki 的安装, 阿里云ecs到期后, 不想再整个wiki了(阿里云ecs存在到期的风险, 所以把2017年左右的文字挪进git) 

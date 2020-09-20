@@ -6,6 +6,7 @@ category:
   - 归档
 tags:
   - linux
+  - cmd
 comment: false
 reward: false
 excerpt: linux 常用命令(阿里云ecs存在到期的风险, 所以把2017年左右的文字挪进git) 

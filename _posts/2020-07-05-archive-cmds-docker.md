@@ -6,6 +6,7 @@ category:
   - 归档
 tags:
   - docker
+  - cmd
 comment: false
 reward: false
 excerpt: docker 常用命令(阿里云ecs存在到期的风险, 所以把2017年左右的文字挪进git) 

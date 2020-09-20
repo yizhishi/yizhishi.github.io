@@ -5,7 +5,8 @@ date: 2020-07-05 00:15:08 +0000
 category:
   - 归档
 tags:
-  - linux
+  - mysql
+  - cmd
 comment: false
 reward: false
 excerpt: mysql 常用命令(阿里云ecs存在到期的风险, 所以把2017年左右的文字挪进git) 

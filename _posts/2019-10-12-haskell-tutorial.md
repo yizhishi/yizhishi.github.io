@@ -11,9 +11,6 @@ reward: false
 excerpt: Haskell学习
 ---
 
-[haskell官网](https://www.haskell.org/)  
-[haskell wiki](https://wiki.haskell.org/)
-
 - [官网的tutorial](#官网的tutorial)
   - [step1 help](#step1-help)
   - [step2 Music is Math](#step2-music-is-math)
@@ -40,6 +37,9 @@ excerpt: Haskell学习
   - [step23 Exercise](#step23-exercise)
   - [step24 Well done](#step24-well-done)
   - [step25 And that's the end of that chapter](#step25-and-thats-the-end-of-that-chapter)
+
+[haskell官网](https://www.haskell.org/)  
+[haskell wiki](https://wiki.haskell.org/)
 
 ## 官网的tutorial
 
